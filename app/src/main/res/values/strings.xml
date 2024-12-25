@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Teene</string>
+    <string name="man_climbing">Ide gas</string>
+    <string name="landing_title_1">try a sport you\'ve never tried before</string>
+    <string name="landing_title_2">connect with local coaches &amp; one more word</string>
+    <string name="landing_title_3">book your private session</string>
+    <string name="landing_description_1">Unleash your adventurous side and discover exciting sports waiting for you</string>
+    <string name="landing_description_2">Access expert coaches in your area who will guide you from beginner to pro</string>
+    <string name="landing_description_3">Secure personalized training in just minutes and elevate your skills effortlessly</string>
+    <string name="landing_login_button">LOGIN</string>
+    <string name="landing_join_now_button">JOIN NOW</string>
+</resources>
