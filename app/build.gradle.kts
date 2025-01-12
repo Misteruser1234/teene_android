@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.devtools.ksp") version "1.9.0-1.0.11" // Depends on your kotlin version
 }
 
 android {
@@ -52,6 +53,17 @@ android {
 
 
 dependencies {
+    implementation(libs.core.ktx)
+    // Needed JUnit version
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.compose.destinations.core)
+    ksp(libs.compose.destinations.ksp)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.android)
+    implementation(libs.bottom.sheet)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
