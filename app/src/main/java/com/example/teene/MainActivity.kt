@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity()
                 ScaffoldExample()
             }
         }
+
     }
 
     @Composable
