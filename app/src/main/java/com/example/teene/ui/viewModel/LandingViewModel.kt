@@ -1,6 +1,5 @@
-package com.example.teene.landing
+package com.example.teene.ui.viewModel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.teene.data.LandingDataStore
@@ -13,12 +12,11 @@ class LandingViewModel(private val landingDataStore: LandingDataStore) : ViewMod
 
     val isLandingSeen = landingDataStore.isLandingSeen.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = false
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = true
     )
 
     fun saveLandingSeen() {
-        Log.i("BOBAN","@@")
         viewModelScope.launch {
             landingDataStore.updateLandingSeen()
         }

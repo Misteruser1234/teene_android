@@ -17,17 +17,19 @@ import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import com.ramcosta.composedestinations.utils.startDestination
 
 @Composable
-fun  TeneeScaffold (navController: NavHostController,
-                    topBar: @Composable (DestinationSpec, NavBackStackEntry?) -> Unit,
-                    bottomBar: @Composable (DestinationSpec) -> Unit,
-                    content: @Composable (PaddingValues) -> Unit,
-) {
+fun TeneeScaffold(
+    navController: NavHostController,
+    topBar: @Composable (DestinationSpec, NavBackStackEntry?) -> Unit,
+    bottomBar: @Composable (DestinationSpec) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+)
+{
     val destination = navController.currentDestinationAsState().value
         ?: NavGraphs.root.startDestination
     val navBackStackEntry = navController.currentBackStackEntry
 
     // 👇 only for debugging, you shouldn't use currentBackStack API as it is restricted by annotation
-//    navController.currentBackStack.collectAsState().value.print()
+    //    navController.currentBackStack.collectAsState().value.print()
 
     val bottomSheetNavigator = rememberBottomSheetNavigator()
     navController.navigatorProvider += bottomSheetNavigator

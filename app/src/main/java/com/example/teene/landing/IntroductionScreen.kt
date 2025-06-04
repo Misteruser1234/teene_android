@@ -34,31 +34,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.teene.LoginScreen
 import com.example.teene.R
 import com.example.teene.ui.composables.PagerSampleItem
+import com.example.teene.ui.viewModel.LandingViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.RegisterScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 
-@Destination<RootGraph>(start=true)
+@Destination<RootGraph>()
 @Composable
-fun IntroductionScreen(navigator: DestinationsNavigator){
+fun IntroductionScreen(navigator: DestinationsNavigator) {
     val landingViewModel = koinViewModel<LandingViewModel>()
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-            when(event){
+            when (event) {
 
-                Lifecycle.Event.ON_STOP -> {landingViewModel.saveLandingSeen()}
-                else->Unit
+                Lifecycle.Event.ON_STOP -> {
+                    landingViewModel.saveLandingSeen()
+                }
+
+                else -> Unit
             }
 
             // event contains current lifecycle event
@@ -137,8 +139,8 @@ fun IntroductionScreen(navigator: DestinationsNavigator){
                 fontSize = 14.sp,
                 modifier = Modifier
                     .clickable {
-                        navigator.navigate(LoginScreenDestination) {
-                            popUpTo(NavGraphs.root){
+                        navigator.navigate(RegisterScreenDestination) {
+                            popUpTo(NavGraphs.root) {
                                 inclusive = true
                             }
                             launchSingleTop = true
@@ -157,6 +159,14 @@ fun IntroductionScreen(navigator: DestinationsNavigator){
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
                 modifier = Modifier
+                    .clickable {
+                        navigator.navigate(LoginScreenDestination) {
+                            popUpTo(NavGraphs.root) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
                     .weight(1f)
                     .wrapContentHeight()
                     .padding(vertical = 16.dp),

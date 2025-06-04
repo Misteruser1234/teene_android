@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.devtools.ksp") version "1.9.0-1.0.11" // Depends on your kotlin version
+    id("com.google.gms.google-services")
+    id("com.google.firebase.appdistribution")
 }
 
 android {
@@ -29,6 +31,15 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        debug {
+            firebaseAppDistribution {
+                artifactType = "APK"
+                testers = "pedjavramovic@gmail.com, lazarristic95@gmail.com"
+                appId = "1:564063800923:android:4b515a52c20dc589e9b97e"
+
+            }
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -55,6 +66,10 @@ android {
 dependencies {
     implementation(libs.core.ktx)
     // Needed JUnit version
+    implementation(libs.okhttpLogger)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit)
     implementation(libs.koin.androidx.compose)

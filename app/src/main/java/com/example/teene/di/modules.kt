@@ -1,13 +1,109 @@
 package com.example.teene.di
 
+import UsersRepository
 import com.example.teene.data.LandingDataStore
-import com.example.teene.landing.LandingViewModel
+import com.example.teene.data.TokenManager
+import com.example.teene.data.network.AuthorizedApiService
+import com.example.teene.data.network.NoAuthApiService
+import com.example.teene.domain.usecases.CreateUserUseCase
+import com.example.teene.domain.usecases.LoginUseCase
+import com.example.teene.home.data.repositories.SportsRepositoryImpl
+import com.example.teene.home.domain.usecases.GetSportsUseCase
+import com.example.teene.home.presentation.ExploreViewModel
+import com.example.teene.profile.presentation.presentation.ProfileViewModel
+import com.example.teene.ui.viewModel.LandingViewModel
+import com.example.teene.ui.viewModel.LoginViewModel
+import com.example.teene.ui.viewModel.RegisterViewModel
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 val landingModule = module {
     single { LandingDataStore(androidContext()) }
-    viewModelOf(::LandingViewModel)
+    single { UsersRepository(get()) }
+    // Provide the use case
+    single { CreateUserUseCase(get()) }
+    single { LoginUseCase(get()) }
+    single { TokenManager(androidContext()) }
+    viewModel { LandingViewModel(get()) }
+    viewModel { RegisterViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get()) }
+    viewModel { ProfileViewModel(get()) }
+
+
 }
+
+val homeModule = module {
+    // Provide the ExploreViewModel
+    single() { SportsRepositoryImpl(get()) }
+    single() { GetSportsUseCase(get()) }// Provide UsersRepository
+//    viewModel { ExploreViewModel(get()) }
+    viewModel { ExploreViewModel() }
+}
+
+// Define a NetworkModule using Koin
+val networkModule = module {
+
+    val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY // Logs the full request and response body
+    }
+    // Provide OkHttpClient with Authorization Interceptor
+    single(named("AuthClient")) {
+        val authTokenProvider: AuthTokenProvider = get()
+        OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(Interceptor { chain ->
+                val request: Request = chain.request()
+                val authenticatedRequest = request.newBuilder()
+                    .addHeader("Authorization", "Bearer ${authTokenProvider.getAuthToken()}")
+                    .build()
+                chain.proceed(authenticatedRequest)
+            })
+            .build()
+    }
+
+    // Provide OkHttpClient without Authorization Interceptor
+    single(named("NoAuthClient")) {
+        OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
+
+    }
+
+    //     Provide Retrofit instance with Authorization
+    single(named("AuthorizedRetrofit")) {
+        Retrofit.Builder()
+            .baseUrl("https://api.staging.tenee.io//") // Replace with your base URL
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(get(named("AuthClient")))
+            .build()
+    }
+
+    // Provide Retrofit instance without Authorization
+    single(named("NoAuthRetrofit")) {
+        Retrofit.Builder()
+            .baseUrl("https://api.staging.tenee.io/") // Replace with your base URL
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(get(named("NoAuthClient")))
+            .build()
+    }
+
+    //    // Provide API services for authorized endpoints
+    factory { get<Retrofit>(named("AuthorizedRetrofit")).create(AuthorizedApiService::class.java) }
+
+    // Provide API services for unauthorized endpoints
+    factory { get<Retrofit>(named("NoAuthRetrofit")).create(NoAuthApiService::class.java) }
+}
+
+// Token provider interface
+interface AuthTokenProvider
+{
+    fun getAuthToken(): String
+}
+
