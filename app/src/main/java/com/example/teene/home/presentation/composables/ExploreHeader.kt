@@ -22,13 +22,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.teene.R
+import okhttp3.Headers
 
 /**
  * Created by 3100lari on 2025/02/13
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploreHeader()
+fun ExploreHeader(headerText: String)
 {
     Row(
         Modifier
@@ -38,7 +39,7 @@ fun ExploreHeader()
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "Explore",
+            text = headerText,
             style = TextStyle(
                 fontSize = 26.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -59,6 +60,7 @@ fun ExploreHeader()
 
 @Preview
 @Composable
-fun ExploreHeaderPreview(){
-    ExploreHeader()
+fun ExploreHeaderPreview()
+{
+    ExploreHeader("Explore")
 }

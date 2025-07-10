@@ -57,7 +57,7 @@ fun IntroductionScreen(navigator: DestinationsNavigator) {
             when (event) {
 
                 Lifecycle.Event.ON_STOP -> {
-                    landingViewModel.saveLandingSeen()
+//                    landingViewModel.saveLandingSeen()
                 }
 
                 else -> Unit

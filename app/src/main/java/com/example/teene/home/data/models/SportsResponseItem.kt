@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class SportsResponseItem(
     val id: Int,
-    @SerializedName("image_url") val imageUrl: String,
     val name: String,
-    @SerializedName("trainer_count") val trainerCount: Int
+    @SerializedName("trainer_count") val trainerCount: Int,
+    val image: ImageItem
 )

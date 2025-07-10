@@ -20,9 +20,11 @@ import com.example.teene.home.presentation.composables.ExploreHeader
 import com.example.teene.home.presentation.composables.SearchBarWithFilters
 import com.example.teene.home.presentation.composables.SportItem
 import com.example.teene.home.presentation.composables.TopicsSelectableList
+import com.example.teene.home.presentation.viewModels.ExploreViewModel
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.SportScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 
@@ -40,7 +42,7 @@ fun ExploreScreen(
         Modifier
             .fillMaxWidth()
     ) {
-        ExploreHeader()
+        ExploreHeader("Explore")
         TopicsSelectableList(
             Modifier
                 .fillMaxWidth()
@@ -49,17 +51,28 @@ fun ExploreScreen(
         HorizontalDivider(color = Color(0x3F3F3F99))
         SearchBarWithFilters(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp))
 
-//        val sports = exploreViewModel.sportsList.collectAsStateWithLifecycle()
-//        LazyColumn(modifier = Modifier.fillMaxSize()) {
-//            items(sports.value) { sport ->
-//                SportItem(
-//                    trainerNumberCategoryText = sport.trainerNumberCategory.displayText,
-//                    sportName = sport.sportName.uppercase(),
-//                    imageUrl = sport.imageUrl
-//                )
-//                Spacer(modifier = Modifier.height(4.dp))
-//            }
-//        }
+        val sports = exploreViewModel.sportsList.collectAsStateWithLifecycle()
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(sports.value) { sport ->
+                SportItem(
+                    id = sport.id,
+                    trainerNumberCategoryText = sport.trainerNumberCategory.displayText,
+                    sportName = sport.sportName.uppercase(),
+                    imageUrl = sport.imageUrl,
+                    onClick = {
+                        exploreViewModel.onSportItemClick(sport.id)
+                        navigator?.navigate(
+                            SportScreenDestination(
+                                sportName = sport.sportName,
+                                sportId = sport.id
+                            )
+                        )
+                        // Handle item click if needed
+                    }
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+        }
     }
 }
 

@@ -1,19 +1,21 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    id("com.google.devtools.ksp") version "1.9.0-1.0.11" // Depends on your kotlin version
+    id("com.google.devtools.ksp") version "2.1.0-1.0.28" // Depends on your kotlin version
     id("com.google.gms.google-services")
     id("com.google.firebase.appdistribution")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.kotlinCompose)
 }
 
 android {
     namespace = "com.example.teene"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.teene"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -61,6 +63,11 @@ android {
     }
 }
 
+secrets {
+
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+}
 
 
 dependencies {
@@ -70,6 +77,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
+    implementation(libs.maps.compose)
+    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.compose)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit)
     implementation(libs.koin.androidx.compose)

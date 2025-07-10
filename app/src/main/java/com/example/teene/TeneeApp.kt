@@ -18,8 +18,11 @@ import com.example.teene.ui.composables.TeneeScaffold
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.CoachDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.RegisterScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SportScreenDestination
 import com.ramcosta.composedestinations.generated.navgraphs.AuthenticationGraph
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.utils.startDestination
@@ -34,9 +37,16 @@ fun TeneeApp()
     val navController = rememberNavController()
 
     // 👇 this avoids a jump in the UI that would happen if we relied only on ShowLoginWhenLoggedOut
-    val isLandingSeen = landingViewModel.isLandingSeen.collectAsStateWithLifecycle().value
+    val tokenExists = landingViewModel.tokenExists.collectAsStateWithLifecycle().value
     val start =
-        if (isLandingSeen) AuthenticationGraph else NavGraphs.root.defaultStartDirection
+        if (!tokenExists)
+        {
+            AuthenticationGraph
+        }
+        else
+        {
+            ExploreScreenDestination
+        }
 
     TeneeScaffold(
         navController = navController,
@@ -73,6 +83,8 @@ fun TeneeApp()
 }
 
 private val DestinationSpec.shouldShowScaffoldElements get() = this !in AuthenticationGraph.destinations
+    && this != SportScreenDestination
+    && this != CoachDetailsScreenDestination
 
 //@Composable
 //private fun ShowLoginWhenLoggedOut(

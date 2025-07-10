@@ -2,18 +2,21 @@ package com.example.teene.home.data.repositories
 
 import android.util.Log
 import com.example.teene.data.network.AuthorizedApiService
+import com.example.teene.home.data.models.TrainerResponseItem
 import kotlinx.coroutines.flow.Flow
-import com.example.teene.home.data.models.SportsResponseItem
 import kotlinx.coroutines.flow.flow
 
-class SportsRepositoryImpl(
+/**
+ * Created by 3100lari on 2025/06/12
+ */
+class TrainersRepositoryImpl(
     private val apiService: AuthorizedApiService
 )
 {
-    fun getSports(): Flow<Result<List<SportsResponseItem>>> = flow {
+    fun getTrainersForSport(sportId: Int): Flow<Result<List<TrainerResponseItem>>> = flow {
         try
         {
-            val response = apiService.getSports()
+            val response = apiService.getTrainersBySportId(sportId)
             if (response.isSuccessful)
             {
                 Log.i("SportsRepository", "Sports fetched successfully: ${response.body()}")
