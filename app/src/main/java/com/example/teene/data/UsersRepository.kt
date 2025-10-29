@@ -1,6 +1,7 @@
 import com.example.teene.data.network.NoAuthApiService
 import com.example.teene.domain.models.AuthorizeRequest
 import com.example.teene.domain.models.AuthorizeResponse
+import com.example.teene.domain.models.ForgotPasswordRequest
 import com.example.teene.domain.models.UserRequest
 import com.example.teene.domain.models.UsersCreateResponse
 import kotlinx.coroutines.flow.Flow
@@ -42,13 +43,30 @@ class UsersRepository(
             else
             {
                 emit(Result.failure(Exception("Failed to login user: ${response.message()}")))  //
-            // Emit failure result
+                // Emit failure result
             }
         } catch (e: Exception)
         {
             emit(Result.failure(e))  // Emit failure in case of an exception
         }
 
+    }
 
+    fun forgotPassword(request: ForgotPasswordRequest): Flow<Result<Unit>> = flow {
+        try
+        {
+            val response = noAuthApiService.forgotPassword(request)
+            if (response.isSuccessful)
+            {
+                emit(Result.success(response.body()!!))
+            }
+            else
+            {
+                emit(Result.failure(Exception("Failed to send forgot password email: ${response.message()}")))
+            }
+        } catch (e: Exception)
+        {
+            emit(Result.failure(e))
+        }
     }
 }

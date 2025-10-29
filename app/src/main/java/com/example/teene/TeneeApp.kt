@@ -12,15 +12,20 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.teene.authentication.AuthenticationNavGraph
+import com.example.teene.authentication.forgotpassword.ForgotPasswordScreen
+import com.example.teene.authentication.forgotpassword.PasswordResetScreen
 import com.example.teene.ui.bottombar.BottomBar
 import com.example.teene.ui.viewModel.LandingViewModel
 import com.example.teene.ui.composables.TeneeScaffold
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.BookScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.CoachDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ForgotPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.PasswordResetScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.RegisterScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.SportScreenDestination
 import com.ramcosta.composedestinations.generated.navgraphs.AuthenticationGraph
@@ -85,6 +90,10 @@ fun TeneeApp()
 private val DestinationSpec.shouldShowScaffoldElements get() = this !in AuthenticationGraph.destinations
     && this != SportScreenDestination
     && this != CoachDetailsScreenDestination
+    && this != BookScreenDestination
+    && this != ForgotPasswordScreenDestination
+    && this != PasswordResetScreenDestination
+// Compare this snippet from app/src/main/java/com/example/teene/ui/composables/TeneeScaffold.kt:
 
 //@Composable
 //private fun ShowLoginWhenLoggedOut(

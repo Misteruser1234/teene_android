@@ -1,10 +1,12 @@
 package com.example.teene.data.network
 
 import com.example.teene.home.data.models.SportsResponseItem
+import com.example.teene.home.data.models.TrainerAvailabilityResponse
 import com.example.teene.home.data.models.TrainerResponseItem
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Created by 3100lari on 2025/05/29
@@ -19,5 +21,12 @@ interface AuthorizedApiService
     suspend fun getTrainersBySportId(
         @Path("sport_id") sportId: Int
     ): Response<List<TrainerResponseItem>>
+
+    @GET("/trainers/{trainer_id}/availability")
+    suspend fun getTrainerAvailability(
+        @Path("trainer_id") trainerId: Int,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null
+    ): Response<TrainerAvailabilityResponse>
 
 }

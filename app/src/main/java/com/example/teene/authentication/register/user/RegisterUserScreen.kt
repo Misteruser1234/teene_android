@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,12 +33,14 @@ import com.example.teene.authentication.composables.ButtonWithIcon
 import com.example.teene.authentication.composables.GenderButtons
 import com.example.teene.authentication.composables.ToggleableGender
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
+import com.example.teene.ui.viewModel.RegisterViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.RegisterUserScreenDestination
 
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Created by 3100lari on 2025/02/09
@@ -49,10 +53,11 @@ fun RegisterUserScreen(
     navigator: DestinationsNavigator? = null
 )
 {
+    val registerViewModel = koinViewModel<RegisterViewModel>()
+
     Column(
         Modifier
             .padding(horizontal = 16.dp)
-            .padding(top = 64.dp)
     ) {
         Text(
             text = "Almost ready!",
@@ -130,8 +135,8 @@ fun RegisterUserScreen(
         var phoneNumberText by rememberSaveable { mutableStateOf("") }
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = ageText,
-            onValueChange = { ageText = it },
+            value = phoneNumberText,
+            onValueChange = { phoneNumberText = it },
             placeholder = { Text("Type your phone number here") },
             label = { Text("Phone Number") },
             colors =
@@ -140,7 +145,9 @@ fun RegisterUserScreen(
                     unfocusedBorderColor = Color(0xFFF0F0F0),
                     focusedBorderColor = Color.Black,
                     focusedLabelColor = Color.Black
-                )
+                ),
+
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
         Spacer(Modifier.height(40.dp))
 
@@ -150,14 +157,23 @@ fun RegisterUserScreen(
 
         Spacer(Modifier.height(24.dp))
         ButtonWithIcon(
+            enabled = true,
             modifier = Modifier.fillMaxWidth(),
             iconId = R.drawable.rocket_1,
             text = "Continue to the App"
         ) {
+            registerViewModel.createUser(
+                name = nameText,
+                age = ageText.toIntOrNull(),
+                gender = selectedGender,
+                emailInput = email,
+                passwordInput = password,
+                phoneNumber = phoneNumberText,
+            )
             navigator?.navigate(ExploreScreenDestination) {
                 launchSingleTop = true
 
-                popUpTo(RegisterUserScreenDestination){
+                popUpTo(RegisterUserScreenDestination) {
                     inclusive = true
                 }
             }
@@ -170,6 +186,7 @@ fun RegisterUserScreen(
 @Composable
 fun AlmostReadyScreenPreview()
 {
-    RegisterUserScreen("testEmail", "testPassword",
+    RegisterUserScreen(
+        "testEmail", "testPassword",
     )
 }

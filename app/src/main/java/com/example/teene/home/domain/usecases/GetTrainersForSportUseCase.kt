@@ -1,8 +1,6 @@
 package com.example.teene.home.domain.usecases
 
-import com.example.teene.home.data.models.SportsResponseItem
 import com.example.teene.home.data.models.TrainerResponseItem
-import com.example.teene.home.data.repositories.SportsRepositoryImpl
 import com.example.teene.home.data.repositories.TrainersRepositoryImpl
 import kotlinx.coroutines.flow.Flow
 

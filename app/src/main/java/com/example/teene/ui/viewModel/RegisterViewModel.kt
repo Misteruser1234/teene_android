@@ -18,9 +18,9 @@ class RegisterViewModel(
     private val tokenManager: TokenManager
 ) : ViewModel()
 {
-    private val _userCreationState =
-        MutableStateFlow<Result<UsersCreateResponse?>>(Result.success(null))
-    val userCreationState: StateFlow<Result<UsersCreateResponse?>> get() = _userCreationState
+    // src/main/java/com/example/teene/ui/viewModel/RegisterViewModel.kt
+    private val _uiState = MutableStateFlow(RegisterUserUiState())
+    val uiState: StateFlow<RegisterUserUiState> get() = _uiState
 
     fun createUser(
         emailInput: String,
@@ -28,28 +28,24 @@ class RegisterViewModel(
         name: String? = null,
         age: Int? = null,
         gender: String? = null,
-        phoneNumber: Int? = null,
+        phoneNumber: String? = null,
         physicalPreparation: Int = 3
-
-    )
-    {
+    ) {
         viewModelScope.launch {
+            _uiState.value = RegisterUserUiState(isLoading = true)
             createUserUseCase.execute(
                 UserRequest(
                     email = emailInput,
                     password = passwordInput
                 )
-            )
-                .collect { result ->
-                    if (result.isSuccess)
-                    {
-                        result.getOrNull()?.authorization?.token?.let { tokenManager.saveToken(it) }
-                        _userCreationState.value = result
-                    }
-                    else
-                    {
-                    }
+            ).collect { result ->
+                if (result.isSuccess) {
+                    val response = result.getOrNull()
+                    response?.authorization?.token?.let { tokenManager.saveToken(it) }
+                    _uiState.value = RegisterUserUiState(user = response)
+                } else {
+                    _uiState.value = RegisterUserUiState(error = result.exceptionOrNull()?.message)
                 }
+            }
         }
-    }
-}
+    }}

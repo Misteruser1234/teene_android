@@ -88,6 +88,7 @@ fun SportScreen(
                 TrainersListView(trainers = trainers) { trainer ->
                     navigator?.navigate(
                         CoachDetailsScreenDestination(
+                            trainerId = trainer.id,
                             trainerName = "${trainer.firstName} ${trainer.lastName}",
                             about = trainer.about ?: "",
                             trainerImageUrl = trainer.imageUrl,
@@ -95,8 +96,10 @@ fun SportScreen(
                             locationLat = trainer.latitude ?: 0.0,
                             locationLng = trainer.longitude ?: 0.0,
                             rate = trainer.rate ?: 0.0,
-                            currency = trainer.currency ?: "USD"
-                        ))
+                            currency = trainer.currency ?: "USD",
+                            address = trainer.address ?: "",
+                        )
+                    )
                 }
             }
 

@@ -6,14 +6,19 @@ import com.example.teene.data.TokenManager
 import com.example.teene.data.network.AuthorizedApiService
 import com.example.teene.data.network.NoAuthApiService
 import com.example.teene.domain.usecases.CreateUserUseCase
+import com.example.teene.domain.usecases.ForgotPasswordUseCase
 import com.example.teene.domain.usecases.LoginUseCase
+import com.example.teene.home.data.repositories.BookRepositoryImpl
 import com.example.teene.home.data.repositories.SportsRepositoryImpl
 import com.example.teene.home.data.repositories.TrainersRepositoryImpl
 import com.example.teene.home.domain.usecases.GetSportsUseCase
+import com.example.teene.home.domain.usecases.GetTrainerAvailabilityUseCase
 import com.example.teene.home.domain.usecases.GetTrainersForSportUseCase
+import com.example.teene.home.presentation.viewModels.BookingTrainerViewModel
 import com.example.teene.home.presentation.viewModels.ExploreViewModel
 import com.example.teene.home.presentation.viewModels.SportViewModel
 import com.example.teene.profile.presentation.presentation.ProfileViewModel
+import com.example.teene.ui.viewModel.ForgotPasswordViewModel
 import com.example.teene.ui.viewModel.LandingViewModel
 import com.example.teene.ui.viewModel.LoginViewModel
 import com.example.teene.ui.viewModel.RegisterViewModel
@@ -36,12 +41,14 @@ val landingModule = module {
     single { UsersRepository(get()) }
     // Provide the use case
     single { CreateUserUseCase(get()) }
+    single { ForgotPasswordUseCase(get()) }
     single { LoginUseCase(get()) }
     single { TokenManager(androidContext()) }
     viewModel { LandingViewModel(get()) }
     viewModel { RegisterViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get()) }
     viewModel { ProfileViewModel(get()) }
+    viewModel { ForgotPasswordViewModel(get()) }
 
 
 }
@@ -49,9 +56,12 @@ val landingModule = module {
 val homeModule = module {
     // Provide the ExploreViewModel
     single() { SportsRepositoryImpl(get()) }
+    single() { BookRepositoryImpl(get()) }
     single() { GetSportsUseCase(get()) } // Provide UsersRepository
+    single() { GetTrainerAvailabilityUseCase(get()) }
     viewModel { ExploreViewModel(get()) }
     viewModel { SportViewModel(get()) }
+    viewModel { BookingTrainerViewModel(get()) }
     single { TrainersRepositoryImpl(get()) }
     single{ GetTrainersForSportUseCase(get()) }
 }

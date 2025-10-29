@@ -68,7 +68,6 @@ fun RegisterScreen(
             headerDescription = "Start you journey as a trainer",
             clickableString = "Click here",
             onClick = {
-                Log.i("BOBAN", "clicking")
                 navigator.navigate(RegisterTrainerScreenDestination) {
                     launchSingleTop = true
                 }
@@ -217,8 +216,8 @@ fun RegisterScreen(
                 )
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF7A7A7A),
-                contentColor = Color.White
+                containerColor = Color(0xFFF0F0F0),
+                contentColor = Color.DarkGray
             ),
             shape = RoundedCornerShape(4.dp),
             modifier = Modifier
@@ -250,60 +249,61 @@ fun RegisterScreen(
             )
 
         )
-        Spacer(Modifier.height(24.dp))
-        OutlinedButton(
-            onClick = { /* Handle login logic here */ },
-            border = BorderStroke(1.dp, Color(0xFFE8E7E5)),
-            shape = RoundedCornerShape(4.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Image(
-                modifier = Modifier.size(32.dp),
-                painter = painterResource(id = R.drawable.google_logo),
-                contentDescription = "Google icon",
-
-                )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = "Continue with Google", textAlign = TextAlign.Center,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    lineHeight = 20.sp,
-                    letterSpacing = (-0.02).sp,
-                    textAlign = TextAlign.Center,
-                    color = Color.Black
-                )
-            )
-        }
-        Spacer(Modifier.height(16.dp))
-        OutlinedButton(
-            onClick = { /* Handle login logic here */ },
-            shape = RoundedCornerShape(4.dp),
-            border = BorderStroke(1.dp, Color(0xFFE8E7E5)),
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Icon(
-                modifier = Modifier.size(24.dp),
-                painter = painterResource(id = R.drawable.apple_logo),
-                contentDescription = "Apple Icon",
-                tint = Color.Black
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = "Continue with Apple", textAlign = TextAlign.Center,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    lineHeight = 20.sp,
-                    letterSpacing = (-0.02).sp,
-                    textAlign = TextAlign.Center,
-                    color = Color.Black
-                )
-            )
-        }
+//        Spacer(Modifier.height(24.dp))
+        // TODO: Should be uncommented once Google and Apple login is integrated
+//        OutlinedButton(
+//            onClick = { /* Handle login logic here */ },
+//            border = BorderStroke(1.dp, Color(0xFFE8E7E5)),
+//            shape = RoundedCornerShape(4.dp),
+//            modifier = Modifier
+//                .fillMaxWidth()
+//        ) {
+//            Image(
+//                modifier = Modifier.size(32.dp),
+//                painter = painterResource(id = R.drawable.google_logo),
+//                contentDescription = "Google icon",
+//
+//                )
+//            Spacer(Modifier.width(6.dp))
+//            Text(
+//                text = "Continue with Google", textAlign = TextAlign.Center,
+//                style = TextStyle(
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    lineHeight = 20.sp,
+//                    letterSpacing = (-0.02).sp,
+//                    textAlign = TextAlign.Center,
+//                    color = Color.Black
+//                )
+//            )
+//        }
+//        Spacer(Modifier.height(16.dp))
+//        OutlinedButton(
+//            onClick = { /* Handle login logic here */ },
+//            shape = RoundedCornerShape(4.dp),
+//            border = BorderStroke(1.dp, Color(0xFFE8E7E5)),
+//            modifier = Modifier
+//                .fillMaxWidth()
+//        ) {
+//            Icon(
+//                modifier = Modifier.size(24.dp),
+//                painter = painterResource(id = R.drawable.apple_logo),
+//                contentDescription = "Apple Icon",
+//                tint = Color.Black
+//            )
+//            Spacer(Modifier.width(6.dp))
+//            Text(
+//                text = "Continue with Apple", textAlign = TextAlign.Center,
+//                style = TextStyle(
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    lineHeight = 20.sp,
+//                    letterSpacing = (-0.02).sp,
+//                    textAlign = TextAlign.Center,
+//                    color = Color.Black
+//                )
+//            )
+//        }
         Spacer(Modifier.height(24.dp))
         ColoredAndClickableText(
             Modifier

@@ -3,6 +3,7 @@ package com.example.teene.authentication.login
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -49,6 +51,7 @@ import com.example.teene.ui.viewModel.LoginUIState
 import com.example.teene.ui.viewModel.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ForgotPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.RegisterScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -162,6 +165,20 @@ fun LoginScreen(
                 )
         )
         Spacer(Modifier.height(16.dp))
+
+        Text(
+            modifier = Modifier.clickable(onClick = {
+                navigator.navigate(ForgotPasswordScreenDestination)
+            }),
+            text = "Forgot password?",
+            style = TextStyle(
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        )
+        Spacer(Modifier.height(16.dp))
+
         Button(
             onClick = {
                 loginViewModel.loginUser(
