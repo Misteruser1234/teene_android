@@ -9,4 +9,14 @@
     <string name="landing_description_3">Secure personalized training in just minutes and elevate your skills effortlessly</string>
     <string name="landing_login_button">LOGIN</string>
     <string name="landing_join_now_button">JOIN NOW</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="explore">Explore</string>
+    <string name="my_sessions">My Sessions</string>
+    <string name="events">Events</string>
+    <string name="profile">Profile</string>
+    <plurals name="coaches">
+        <item quantity="one">1 coach</item>
+        <item quantity="other">%1$d coaches</item>
+    </plurals>
 </resources>
