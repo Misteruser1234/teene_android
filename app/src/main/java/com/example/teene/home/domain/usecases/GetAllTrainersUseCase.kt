@@ -5,14 +5,11 @@ import com.example.teene.home.data.repositories.TrainersRepository
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Created by 3100lari on 2025/06/12
+ * Use case to fetch all trainers across all sports.
+ * Created by 3100lari on 2025/11/05
  */
-class GetTrainersForSportUseCase(
+class GetAllTrainersUseCase(
     private val trainersRepository: TrainersRepository,
-)
-{
-    fun execute(sportId: Int): Flow<Result<List<TrainerResponseItem>>>
-    {
-        return trainersRepository.getTrainersForSport(sportId)  // Returns Flow from the repository
-    }
+) {
+    fun execute(): Flow<Result<List<TrainerResponseItem>>> = trainersRepository.getAllTrainers()
 }
