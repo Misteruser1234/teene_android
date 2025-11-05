@@ -41,7 +41,13 @@ fun BottomBar(
                     stringResource
                     (destination.label))},
                 label = { Text(stringResource(destination.label)) },
-                colors = NavigationBarItemDefaults.colors(indicatorColor = Color.LightGray)
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color(0xFF9E9E9E),
+                    selectedTextColor = Color.Black,
+                    unselectedTextColor = Color(0xFF9E9E9E),
+                    indicatorColor = Color.Transparent
+                )
             )
         }
     }

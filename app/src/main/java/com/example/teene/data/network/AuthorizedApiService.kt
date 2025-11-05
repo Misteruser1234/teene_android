@@ -1,5 +1,6 @@
 package com.example.teene.data.network
 
+import com.example.teene.events.data.models.EventDto
 import com.example.teene.home.data.models.SportsResponseItem
 import com.example.teene.home.data.models.TrainerAvailabilityResponse
 import com.example.teene.home.data.models.TrainerResponseItem
@@ -29,4 +30,15 @@ interface AuthorizedApiService
         @Query("end_date") endDate: String? = null
     ): Response<TrainerAvailabilityResponse>
 
+    @GET("/events")
+    suspend fun getEvents(
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null,
+        @Query("radius") radius: Int? = null,
+        @Query("intensities[]") intensities: List<String>? = null,
+        @Query("max_price") maxPrice: Int? = null,
+        @Query("multi_day") multiDay: Boolean? = null,
+        @Query("page") page: Int? = null,
+        @Query("page_size") pageSize: Int? = null
+    ): Response<List<EventDto>>
 }

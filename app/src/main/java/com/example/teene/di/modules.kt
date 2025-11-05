@@ -5,9 +5,13 @@ import com.example.teene.data.LandingDataStore
 import com.example.teene.data.TokenManager
 import com.example.teene.data.network.AuthorizedApiService
 import com.example.teene.data.network.NoAuthApiService
+import com.example.teene.data.network.AuthInterceptor
 import com.example.teene.domain.usecases.CreateUserUseCase
 import com.example.teene.domain.usecases.ForgotPasswordUseCase
 import com.example.teene.domain.usecases.LoginUseCase
+import com.example.teene.events.data.repositories.EventsRepositoryImpl
+import com.example.teene.events.domain.usecases.GetEventsUseCase
+import com.example.teene.events.presentation.EventsViewModel
 import com.example.teene.home.data.repositories.BookRepositoryImpl
 import com.example.teene.home.data.repositories.SportsRepositoryImpl
 import com.example.teene.home.data.repositories.TrainersRepositoryImpl
@@ -22,11 +26,7 @@ import com.example.teene.ui.viewModel.ForgotPasswordViewModel
 import com.example.teene.ui.viewModel.LandingViewModel
 import com.example.teene.ui.viewModel.LoginViewModel
 import com.example.teene.ui.viewModel.RegisterViewModel
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -49,21 +49,25 @@ val landingModule = module {
     viewModel { LoginViewModel(get(), get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { ForgotPasswordViewModel(get()) }
-
-
 }
 
 val homeModule = module {
     // Provide the ExploreViewModel
-    single() { SportsRepositoryImpl(get()) }
-    single() { BookRepositoryImpl(get()) }
-    single() { GetSportsUseCase(get()) } // Provide UsersRepository
-    single() { GetTrainerAvailabilityUseCase(get()) }
+    single { SportsRepositoryImpl(get()) }
+    single { BookRepositoryImpl(get()) }
+    single { GetSportsUseCase(get()) } // Provide UsersRepository
+    single { GetTrainerAvailabilityUseCase(get()) }
     viewModel { ExploreViewModel(get()) }
     viewModel { SportViewModel(get()) }
     viewModel { BookingTrainerViewModel(get()) }
     single { TrainersRepositoryImpl(get()) }
-    single{ GetTrainersForSportUseCase(get()) }
+    single { GetTrainersForSportUseCase(get()) }
+}
+
+val eventsModule = module {
+    single { EventsRepositoryImpl(get()) }
+    single { GetEventsUseCase(get()) }
+    viewModel { EventsViewModel(get()) }
 }
 
 // Define a NetworkModule using Koin
@@ -73,19 +77,11 @@ val networkModule = module {
         level = HttpLoggingInterceptor.Level.BODY // Logs the full request and response body
     }
     // Provide OkHttpClient with Authorization Interceptor
+    single { AuthInterceptor(get()) }
     single(named("AuthClient")) {
-
-        val authToken = runBlocking { (get<TokenManager>().getToken.firstOrNull() ?: "") }
-
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(Interceptor { chain ->
-                val request: Request = chain.request()
-                val authenticatedRequest = request.newBuilder()
-                    .addHeader("Authorization", "Bearer $authToken")
-                    .build()
-                chain.proceed(authenticatedRequest)
-            })
+            .addInterceptor(get<AuthInterceptor>())
             .build()
     }
 

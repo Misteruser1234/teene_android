@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.teene.di.eventsModule
 import com.example.teene.di.homeModule
 import com.example.teene.di.landingModule
 import com.example.teene.di.networkModule
@@ -22,7 +23,8 @@ class MainActivity : ComponentActivity()
                 modules(
                     landingModule,
                     networkModule,
-                    homeModule
+                    homeModule,
+                    eventsModule
                 )
             }) {
                 TeeneTheme {

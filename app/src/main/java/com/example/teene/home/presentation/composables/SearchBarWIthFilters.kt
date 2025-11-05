@@ -42,8 +42,14 @@ import com.example.teene.R
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBarWithFilters(modifier: Modifier = Modifier)
-{
+fun SearchBarWithFilters(
+    modifier: Modifier = Modifier,
+    onFilterClick: () -> Unit = {},
+    showFilterButton: Boolean = true,
+    showAskAiButton: Boolean = true,
+    cornerRadius: androidx.compose.ui.unit.Dp = 30.dp,
+    placeholder: String = "What are you up to today?"
+) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
@@ -55,26 +61,26 @@ fun SearchBarWithFilters(modifier: Modifier = Modifier)
             windowInsets = WindowInsets.ime,
             colors = SearchBarColors(containerColor = Color.White, Color.DarkGray),
             modifier = Modifier
+                .weight(1f)
                 .then(
                     if (!expanded) Modifier.border(
                         width = 1.dp,
                         color = Color.LightGray,
-                        shape = RoundedCornerShape(30.dp)
+                        shape = RoundedCornerShape(cornerRadius)
                     )
                     else Modifier
                 )
-
                 .semantics { traversalIndex = 0f },
             inputField = {
                 SearchBarDefaults.InputField(
                     colors = TextFieldDefaults.colors(),
                     onSearch = { expanded = false },
-                    modifier = Modifier.width(250.dp),
+                    modifier = Modifier,
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
                     placeholder = {
                         Text(
-                            "What are you up to today?",
+                            placeholder,
                             color = Color.DarkGray,
                             fontSize = 14.sp,
                             maxLines = 1
@@ -90,44 +96,44 @@ fun SearchBarWithFilters(modifier: Modifier = Modifier)
                 )
             },
             expanded = expanded,
-            onExpandedChange = { expanded = it }) {
-
-        }
-        Spacer(Modifier.width(10.dp))
-
-        OutlinedIconButton(
-            shape = CircleShape,
-            border = BorderStroke(1.dp, Color.LightGray),
-            onClick = {}
+            onExpandedChange = { expanded = it }
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_search_filter),
-                contentDescription = "Localized " +
-                    "description",
-                tint = Color.DarkGray
-            )
-        }
-        Spacer(Modifier.width(10.dp))
-        FilledIconButton(
-            shape = CircleShape,
-            colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.Black),
-            onClick = {}
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_ask_ai),
-                contentDescription = "Localized " +
-                    "description",
-                tint = Color.White
-            )
         }
 
+        if (showFilterButton) {
+            Spacer(Modifier.width(10.dp))
+            OutlinedIconButton(
+                shape = CircleShape,
+                border = BorderStroke(1.dp, Color.LightGray),
+                onClick = onFilterClick
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_search_filter),
+                    contentDescription = "Localized description",
+                    tint = Color.DarkGray
+                )
+            }
+        }
+        if (showAskAiButton) {
+            Spacer(Modifier.width(10.dp))
+            FilledIconButton(
+                shape = CircleShape,
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.Black),
+                onClick = {}
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_ask_ai),
+                    contentDescription = "Localized description",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
 //}
 
 @Preview
 @Composable
-fun SearchBarWithFiltersPreview()
-{
+fun SearchBarWithFiltersPreview() {
     SearchBarWithFilters()
 }
