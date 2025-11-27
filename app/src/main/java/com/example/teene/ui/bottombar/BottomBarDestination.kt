@@ -19,7 +19,8 @@ enum class BottomBarDestination(
     @StringRes val label: Int
 ) {
     Explore(ExploreScreenDestination, R.drawable.ic_bottom_bar_search, R.string.explore),
-    Events(EventsScreenDestination, R.drawable.ic_bottom_bar_event, R.string.events),
     MySessions(MySessionsScreenDestination, R.drawable.ic_bottom_bar_trophy, R.string.my_sessions),
+    Inbox(MySessionsScreenDestination,icon=R.drawable.outline_inbox_text_24,R.string.inbox),
+    Events(EventsScreenDestination, R.drawable.ic_bottom_bar_event, R.string.events),
     Profile(ProfileScreenDestination, R.drawable.ic_bottom_bar_profile, R.string.profile)
 }

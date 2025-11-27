@@ -14,13 +14,17 @@ import com.example.teene.events.domain.usecases.GetEventsUseCase
 import com.example.teene.events.presentation.EventsViewModel
 import com.example.teene.home.data.repositories.BookRepositoryImpl
 import com.example.teene.home.data.repositories.SportsRepositoryImpl
+import com.example.teene.home.data.repositories.MockTrainersRepositoryImpl
+import com.example.teene.home.data.repositories.TrainersRepository
 import com.example.teene.home.data.repositories.TrainersRepositoryImpl
 import com.example.teene.home.domain.usecases.GetSportsUseCase
 import com.example.teene.home.domain.usecases.GetTrainerAvailabilityUseCase
 import com.example.teene.home.domain.usecases.GetTrainersForSportUseCase
+import com.example.teene.home.domain.usecases.GetAllTrainersUseCase
 import com.example.teene.home.presentation.viewModels.BookingTrainerViewModel
 import com.example.teene.home.presentation.viewModels.ExploreViewModel
 import com.example.teene.home.presentation.viewModels.SportViewModel
+import com.example.teene.home.presentation.viewModels.CoachesFilterViewModel
 import com.example.teene.profile.presentation.presentation.ProfileViewModel
 import com.example.teene.ui.viewModel.ForgotPasswordViewModel
 import com.example.teene.ui.viewModel.LandingViewModel
@@ -60,8 +64,20 @@ val homeModule = module {
     viewModel { ExploreViewModel(get()) }
     viewModel { SportViewModel(get()) }
     viewModel { BookingTrainerViewModel(get()) }
-    single { TrainersRepositoryImpl(get()) }
+    viewModel { CoachesFilterViewModel(get(), get(), get()) }
+
+    // Bind TrainersRepository.
+    // Toggle by commenting/uncommenting one of the lines below.
+    single<TrainersRepository> {
+        // Mock implementation (default):
+//        MockTrainersRepositoryImpl()
+
+        // Real implementation (uncomment to use the real network-backed repo):
+         TrainersRepositoryImpl(get())
+    }
+
     single { GetTrainersForSportUseCase(get()) }
+    single { GetAllTrainersUseCase(get()) }
 }
 
 val eventsModule = module {

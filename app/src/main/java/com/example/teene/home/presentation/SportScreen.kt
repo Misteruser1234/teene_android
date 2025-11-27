@@ -39,6 +39,7 @@ import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CoachDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.CoachesMapScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 

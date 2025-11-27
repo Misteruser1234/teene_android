@@ -13,6 +13,7 @@
     <string name="female">Female</string>
     <string name="explore">Explore</string>
     <string name="my_sessions">My Sessions</string>
+    <string name="inbox">Inbox</string>
     <string name="events">Events</string>
     <string name="profile">Profile</string>
     <plurals name="coaches">

@@ -18,5 +18,6 @@ data class TrainerWithCoordinates(
     val rating: Double?,
     val about: String,
     val imageUrl: String?,
-    val features: List<FeatureItem>
+    val features: List<FeatureItem>,
+    val sportName: String? = null,
 )

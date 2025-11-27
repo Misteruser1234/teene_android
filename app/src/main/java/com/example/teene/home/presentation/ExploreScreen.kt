@@ -24,6 +24,8 @@ import com.example.teene.home.presentation.viewModels.ExploreViewModel
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.CoachesMapScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.CoachesMapScreenDestination.invoke
 import com.ramcosta.composedestinations.generated.destinations.SportScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -42,7 +44,9 @@ fun ExploreScreen(
         Modifier
             .fillMaxWidth()
     ) {
-        ExploreHeader("Explore")
+        ExploreHeader("Explore", onMapClick = {
+            navigator?.navigate(CoachesMapScreenDestination())
+        })
         TopicsSelectableList(
             Modifier
                 .fillMaxWidth()

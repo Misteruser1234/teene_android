@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PinConfig
 import com.google.maps.android.compose.AdvancedMarker
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerInfoWindowContent
@@ -39,27 +40,58 @@ import com.google.maps.android.compose.rememberMarkerState
  */
 
 @Composable
-fun TrainersInMap(trainers: List<TrainerWithCoordinates>)
-{
+fun TrainersInMap(
+    trainers: List<TrainerWithCoordinates>,
+    selectedTrainerId: Int? = null,
+    onMarkerClick: (trainerId: Int) -> Unit = {}
+) {
+    if (trainers.isEmpty()) return
+
     val pins = trainers.map { trainer -> LatLng(trainer.latitude, trainer.longitude) }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(pins[0], 12f)
     }
+
+    // Center camera when selection changes
+    androidx.compose.runtime.LaunchedEffect(selectedTrainerId) {
+        val idx = selectedTrainerId?.let { id -> trainers.indexOfFirst { it.id == id } } ?: -1
+        if (idx >= 0) {
+            val target = pins[idx]
+            com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(target, 13f).let {
+                cameraPositionState.animate(it, 900)
+            }
+        }
+    }
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false // Disables the zoom in/out buttons
+            )
     ) {
         pins.forEachIndexed { index, location ->
-            MarkerComposable(state = rememberMarkerState(position = location)) {
+            val trainer = trainers[index]
+            val isSelected = trainer.id == selectedTrainerId
+            MarkerComposable(
+                state = rememberMarkerState(position = location),
+                onClick = {
+                    onMarkerClick(trainer.id)
+                    true
+                }
+            ) {
                 Row(
                     modifier = Modifier
-                        .background(color = Color(0xFF03A9C5), shape = RoundedCornerShape(8.dp))
+                        .background(
+                            color = if (isSelected) Color(0xFF028199) else Color(0xFF03A9C5),
+                            shape = RoundedCornerShape(8.dp)
+                        )
                         .padding(horizontal = 4.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(if (isSelected) 36.dp else 32.dp)
                             .clip(RoundedCornerShape(4.dp))
                             .background(Color.White),
                         contentAlignment = Alignment.Center
@@ -75,14 +107,13 @@ fun TrainersInMap(trainers: List<TrainerWithCoordinates>)
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = "${trainers[index].currency} ${trainers[index].rate}",
+                        text = "${trainer.currency} ${trainer.rate}",
                         color = Color.White,
                         fontWeight = FontWeight.Medium,
                         fontSize = 16.sp
                     )
                 }
             }
-
         }
     }
 }
