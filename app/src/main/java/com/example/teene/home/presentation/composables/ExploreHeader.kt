@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,7 +32,7 @@ import com.example.teene.R
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploreHeader(headerText: String, onMapClick: (() -> Unit)? = null)
+fun CommonHeader(headerText: String, onMapClick: (() -> Unit)? = null)
 {
     Row(
         Modifier
@@ -53,19 +52,21 @@ fun ExploreHeader(headerText: String, onMapClick: (() -> Unit)? = null)
                 color = Color.Black
             )
         )
-        Spacer(Modifier.height(20.dp))
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .border(width = 1.dp, color = Color(0xFFF0F0F0), shape = CircleShape)
-                .clickable(enabled = onMapClick != null) { onMapClick?.invoke() },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                modifier = Modifier.size(20.dp),
-                painter = painterResource(id = R.drawable.map_1),
-                contentDescription = "Open coaches map",
-            )
+        if (onMapClick != null) {
+            Spacer(Modifier.height(20.dp))
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .border(width = 1.dp, color = Color(0xFFF0F0F0), shape = CircleShape)
+                    .clickable { onMapClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    painter = painterResource(id = R.drawable.map_1),
+                    contentDescription = "Open coaches map",
+                )
+            }
         }
     }
 }
@@ -74,5 +75,5 @@ fun ExploreHeader(headerText: String, onMapClick: (() -> Unit)? = null)
 @Composable
 fun ExploreHeaderPreview()
 {
-    ExploreHeader("Explore")
+    CommonHeader("Explore")
 }

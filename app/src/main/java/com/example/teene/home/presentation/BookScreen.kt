@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -35,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +51,9 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,6 +69,7 @@ import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.generated.destinations.MySessionsScreenDestination
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -85,7 +93,24 @@ fun BookScreen(
     val bookingTrainerViewModel = koinViewModel<BookingTrainerViewModel>()
 
     var selectedDateTime by remember { mutableStateOf("") }
+    var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
     var peopleCount by remember { mutableStateOf(1) }
+
+    // Observe booking state
+    val bookingState = bookingTrainerViewModel.bookingState.collectAsStateWithLifecycle().value
+    val isBookingLoading = bookingState is com.example.teene.home.presentation.models.BookingUiState.Loading
+
+    // Navigate to My Sessions on successful booking
+    LaunchedEffect(bookingState) {
+        when (bookingState) {
+            is com.example.teene.home.presentation.models.BookingUiState.Success -> {
+                navigator.navigate(MySessionsScreenDestination) {
+                    launchSingleTop = true
+                }
+            }
+            else -> Unit
+        }
+    }
 
 
     val availabilityUiState = bookingTrainerViewModel.availabilityState
@@ -137,6 +162,7 @@ fun BookScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         // Header
         Row(
@@ -193,8 +219,19 @@ fun BookScreen(
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        DatePickerFieldToModal(onDateSelected = {
-            bookingTrainerViewModel.fetchTrainerAvailability(trainerId)
+        DatePickerFieldToModal(onDateSelected = { millis ->
+            selectedDateMillis = millis
+            // Convert picked millis to LocalDate in device zone and fetch availability for that day
+            val selectedLocalDate = millis?.let {
+                java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            }
+            if (selectedLocalDate != null) {
+                bookingTrainerViewModel.fetchTrainerAvailability(
+                    trainerId = trainerId,
+                    startDate = selectedLocalDate,
+                    endDate = selectedLocalDate
+                )
+            }
         })
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -245,7 +282,7 @@ fun BookScreen(
             )
 
             OutlinedIconButton(
-                onClick = { if (peopleCount > 1) peopleCount++ },
+                onClick = { peopleCount++ },
                 shape = RoundedCornerShape(4.dp),
                 border = BorderStroke(1.dp, Color(0xFFCFCFCF))
             ) {
@@ -255,34 +292,65 @@ fun BookScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Bottom Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("$rate $currency / trening", style = MaterialTheme.typography.bodySmall)
-                Text(
-                    "21. Oct at 9 AM",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text("$peopleCount people", style = MaterialTheme.typography.bodySmall)
-            }
+        // Footer using common component
+        com.example.teene.ui.composables.ComonFooter(
+            leftContent = {
+                Column(modifier = Modifier.weight(1f)) {
+                    // Price with bold amount
+                    Text(
+                        buildAnnotatedString {
+                            withStyle(style = androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("$rate ")
+                            }
+                            append(currency)
+                            append(" / trening")
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
 
-            Button(
-                onClick = { /* Book action */ },
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.rocket_1),
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Book")
-            }
-        }
+                    // Date and time, bold when selected
+                    val dateText = selectedDateMillis?.let { millis: Long -> formatDayMonth(millis) }
+                    val timeText = if (selectedDateTime.isNotBlank()) selectedDateTime else null
+                    if (dateText != null || timeText != null) {
+                        Text(
+                            buildAnnotatedString {
+                                if (dateText != null) {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(dateText)
+                                    }
+                                }
+                                if (dateText != null && timeText != null) append(" at ")
+                                if (timeText != null) {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(timeText)
+                                    }
+                                }
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
+                        )
+                    } else {
+                        Text(
+                            text = "Pick date and time",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
+
+                    // People count
+                    Text("$peopleCount people", style = MaterialTheme.typography.bodySmall, color = Color.Black)
+                }
+            },
+            buttonText = if (isBookingLoading) "Booking..." else "Book now",
+            onButtonClick = {
+                if (!isBookingLoading && selectedDateMillis != null && selectedDateTime.isNotBlank()) {
+                    bookingTrainerViewModel.bookSession(trainerId, selectedDateMillis!!, selectedDateTime)
+                }
+            },
+            buttonEnabled = !isBookingLoading && selectedDateMillis != null && selectedDateTime.isNotBlank(),
+            buttonIconId = R.drawable.rocket_1
+        )
     }
 }
 
@@ -334,6 +402,11 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier, onDateSelected: (Long?
 fun convertMillisToDate(millis: Long): String
 {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
+}
+
+fun formatDayMonth(millis: Long): String {
+    val formatter = SimpleDateFormat("d. MMM", Locale.getDefault())
     return formatter.format(Date(millis))
 }
 

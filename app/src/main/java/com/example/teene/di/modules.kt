@@ -48,9 +48,12 @@ val landingModule = module {
     single { ForgotPasswordUseCase(get()) }
     single { LoginUseCase(get()) }
     single { TokenManager(androidContext()) }
+    // UserDataStore to keep authorized user's local data (e.g., user_id)
+    single { com.example.teene.data.UserDataStore(androidContext()) }
+
     viewModel { LandingViewModel(get()) }
     viewModel { RegisterViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { ForgotPasswordViewModel(get()) }
 }
@@ -59,11 +62,24 @@ val homeModule = module {
     // Provide the ExploreViewModel
     single { SportsRepositoryImpl(get()) }
     single { BookRepositoryImpl(get()) }
-    single { GetSportsUseCase(get()) } // Provide UsersRepository
+    single { GetSportsUseCase(get()) }
+
+    // Features: repo + use case
+    single { com.example.teene.home.data.repositories.FeaturesRepositoryImpl(get()) }
+    single { com.example.teene.home.domain.usecases.GetFeaturesUseCase(get()) }
+
+    // Bookings: local + remote data sources, repository, use case
+    single { com.example.teene.home.data.datasources.BookingsLocalDataSource(get()) }
+    single { com.example.teene.home.data.datasources.BookingsRemoteDataSource(get()) }
+    single<com.example.teene.home.data.repositories.TrainingBookingsRepository> {
+        com.example.teene.home.data.repositories.TrainingBookingsRepositoryImpl(get(), get())
+    }
+    single { com.example.teene.home.domain.usecases.BookTrainingUseCase(get()) }
+
     single { GetTrainerAvailabilityUseCase(get()) }
-    viewModel { ExploreViewModel(get()) }
-    viewModel { SportViewModel(get()) }
-    viewModel { BookingTrainerViewModel(get()) }
+    viewModel { ExploreViewModel(get(), get<com.example.teene.home.domain.usecases.GetFeaturesUseCase>()) }
+    viewModel { SportViewModel(get(), get()) }
+    viewModel { BookingTrainerViewModel(get(), get<com.example.teene.home.domain.usecases.BookTrainingUseCase>()) }
     viewModel { CoachesFilterViewModel(get(), get(), get()) }
 
     // Bind TrainersRepository.

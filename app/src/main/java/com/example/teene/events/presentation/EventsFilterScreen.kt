@@ -1,9 +1,7 @@
 package com.example.teene.events.presentation
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,43 +9,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.TextField
-import com.example.teene.R
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.teene.home.presentation.composables.SearchBarWithFilters
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
+import com.example.teene.ui.composables.MultiSelectChips
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -59,12 +54,11 @@ fun EventsFilterScreen(
     navigator: DestinationsNavigator
 ) {
     // Local filter states (UI-only for now)
-    var latitudeText by rememberSaveable { mutableStateOf("") }
-    var longitudeText by rememberSaveable { mutableStateOf("") }
-    var radius by rememberSaveable { mutableStateOf(25f) }
-    var maxPrice by rememberSaveable { mutableStateOf(80f) }
-    var multiDay by rememberSaveable { mutableStateOf(false) }
+    var locationQuery by rememberSaveable { mutableStateOf("") }
     var selectedIntensities by rememberSaveable { mutableStateOf(setOf<String>()) }
+    var maxPriceText by rememberSaveable { mutableStateOf("") }
+    var selectedDuration by rememberSaveable { mutableStateOf(setOf<String>()) }
+    var selectedExtras by rememberSaveable { mutableStateOf(setOf<String>()) }
 
     // Month dropdown state
     val months = remember { listOf("January","February","March","April","May","June","July","August","September","October","November","December") }
@@ -92,6 +86,7 @@ fun EventsFilterScreen(
 
         Spacer(Modifier.height(16.dp))
 
+        // Month
         Text(text = "Month", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
         ExposedDropdownMenuBox(
@@ -126,70 +121,74 @@ fun EventsFilterScreen(
 
         Spacer(Modifier.height(20.dp))
 
+        // Location
         Text(text = "Location", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
-        com.example.teene.home.presentation.composables.SearchBarWithFilters(
+        SearchBarWithFilters(
             modifier = Modifier.fillMaxWidth(),
             onFilterClick = {},
             showFilterButton = false,
             showAskAiButton = false,
             cornerRadius = 4.dp,
-            placeholder = "Type your location here"
+            placeholder = "Search location",
+            onQueryChange = { q -> locationQuery = q }
         )
 
         Spacer(Modifier.height(20.dp))
 
-        Text(text = "Radius: ${'$'}{radius.toInt()} km", style = MaterialTheme.typography.titleMedium)
-        Slider(
-            value = radius,
-            onValueChange = { radius = it },
-            valueRange = 1f..100f,
-            steps = 98
-        )
-
-        Spacer(Modifier.height(12.dp))
-
+        // Intensity
         Text(text = "Intensity", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("Low", "Moderate", "High").forEach { level ->
-                val selected = selectedIntensities.contains(level)
-                FilterChip(
-                    selected = selected,
-                    onClick = {
-                        selectedIntensities = if (selected) selectedIntensities - level else selectedIntensities + level
-                    },
-                    label = { Text(level) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color.Black,
-                        selectedLabelColor = Color.White,
-                        containerColor = Color(0xFFF5F5F5),
-                        labelColor = Color.Black
-                    )
-                )
-            }
-        }
+        MultiSelectChips(
+            labels = listOf("Low", "Moderate", "High"),
+            selectedLabels = selectedIntensities,
+            onSelectionChange = { selectedIntensities = it },
+            maxItemsInEachRow = 3
+        )
 
         Spacer(Modifier.height(20.dp))
 
-        Text(text = "Max price: €${'$'}{maxPrice.toInt()}", style = MaterialTheme.typography.titleMedium)
-        Slider(
-            value = maxPrice,
-            onValueChange = { maxPrice = it },
-            valueRange = 0f..200f,
-            steps = 199
+        // Maximum price (numeric input)
+        Text(text = "Maximum price", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = maxPriceText,
+            onValueChange = { new ->
+                // accept only digits
+                if (new.all { it.isDigit() }) {
+                    maxPriceText = new
+                }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(text = "Enter amount") },
+            trailingIcon = { Text(text = "€") }
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(20.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Multi-day", style = MaterialTheme.typography.titleMedium)
-            Switch(checked = multiDay, onCheckedChange = { multiDay = it })
-        }
+        // Duration (single-select chips)
+        Text(text = "Duration", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
+        MultiSelectChips(
+            labels = listOf("One-day", "Multi-day"),
+            selectedLabels = selectedDuration,
+            onSelectionChange = { selectedDuration = it },
+            maxItemsInEachRow = 2
+        )
+
+        Spacer(Modifier.height(20.dp))
+
+        // Extras
+        Text(text = "Extras", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
+        MultiSelectChips(
+            labels = listOf("With coach", "Without coach"),
+            selectedLabels = selectedExtras,
+            onSelectionChange = { selectedExtras = it },
+            maxItemsInEachRow = 2
+        )
 
         Spacer(Modifier.weight(1f))
 
@@ -197,25 +196,37 @@ fun EventsFilterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(onClick = {
-                            latitudeText = ""
-                            longitudeText = ""
-                            radius = 25f
-                            maxPrice = 80f
-                            multiDay = false
-                            selectedIntensities = emptySet()
-                            selectedMonth = null
-                            monthExpanded = false
-                        }) {
-                Text(text = "Reset")
-            }
+            Text(
+                text = "Reset",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    letterSpacing = (-0.02).sp,
+                    textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
+                ),
+                color = Color.Black,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        // Reset all fields
+                        locationQuery = ""
+                        selectedIntensities = emptySet()
+                        maxPriceText = ""
+                        selectedDuration = emptySet()
+                        selectedExtras = emptySet()
+                        selectedMonth = null
+                        monthExpanded = false
+                    }
+            )
 
             FilledTonalButton(
-                onClick = { navigator.popBackStack() },
-                shape = CircleShape
+                onClick = { navigator.navigateUp() },
+                shape = CircleShape,
+                modifier = Modifier.weight(2f)
             ) {
                 Text(text = "Apply Selection", color = Color.White, style = MaterialTheme.typography.labelLarge)
             }

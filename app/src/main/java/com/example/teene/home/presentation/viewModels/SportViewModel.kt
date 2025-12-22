@@ -14,11 +14,42 @@ import kotlinx.coroutines.flow.stateIn
 /**
  * Created by 3100lari on 2025/06/12
  */
+import com.example.teene.home.domain.usecases.GetSportsUseCase
+import com.example.teene.home.presentation.models.SportUi
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+
 class SportViewModel(
-    private val getTrainersForSportUseCase: GetTrainersForSportUseCase
+    private val getTrainersForSportUseCase: GetTrainersForSportUseCase,
+    private val getSportsUseCase: GetSportsUseCase
 ) : ViewModel()  // Assuming ViewModel is imported from androidx.lifecycle)
 {
-    private val selectedSportId = MutableStateFlow<Int>(0)
+    private val _selectedSportId = MutableStateFlow(0)
+    val selectedSportId: StateFlow<Int> = _selectedSportId.asStateFlow()
+
+    val sports: StateFlow<List<SportUi>> = getSportsUseCase.execute()
+        .map { result ->
+            result.fold(
+                onSuccess = { list ->
+                    list.map { SportUi(id = it.id, name = it.name) }
+                },
+                onFailure = { emptyList() }
+            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
+
+    // Selected sport name derived from current list and selected id
+    val selectedSportName: StateFlow<String?> = combine(sports, selectedSportId) { list, id ->
+        list.firstOrNull { it.id == id }?.name
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
     val trainersList: StateFlow<List<TrainerWithCoordinates>> = selectedSportId
         .flatMapLatest { sportId ->
@@ -57,7 +88,7 @@ class SportViewModel(
 
     fun loadTrainersForSport(sportId: Int)
     {
-        selectedSportId.value = sportId
+        _selectedSportId.value = sportId
     }
 
 }

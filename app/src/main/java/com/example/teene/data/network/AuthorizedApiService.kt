@@ -1,11 +1,16 @@
 package com.example.teene.data.network
 
 import com.example.teene.events.data.models.EventDto
+import com.example.teene.home.data.models.FeatureItem
 import com.example.teene.home.data.models.SportsResponseItem
 import com.example.teene.home.data.models.TrainerAvailabilityResponse
 import com.example.teene.home.data.models.TrainerResponseItem
+import com.example.teene.home.data.models.TrainingBookingRequest
+import com.example.teene.home.data.models.TrainingBookingResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -16,7 +21,15 @@ interface AuthorizedApiService
 {
 
     @GET("/sports")
-    suspend fun getSports(): Response<List<SportsResponseItem>>
+    suspend fun getSports(
+        @Query("radius") radius: Int? = null,
+        @Query("feature_ids") featureIds: List<Int>? = null,
+        @Query("intensities") intensities: List<String>? = null,
+        @Query("name") name: String? = null
+    ): Response<List<SportsResponseItem>>
+
+    @GET("/features")
+    suspend fun getFeatures(): Response<List<FeatureItem>>
 
     @GET("/sports/{sport_id}/trainers")
     suspend fun getTrainersBySportId(
@@ -41,4 +54,9 @@ interface AuthorizedApiService
         @Query("page") page: Int? = null,
         @Query("page_size") pageSize: Int? = null
     ): Response<List<EventDto>>
+
+    @POST("/training_bookings")
+    suspend fun createTrainingBooking(
+        @Body request: TrainingBookingRequest
+    ): Response<TrainingBookingResponse>
 }

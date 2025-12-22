@@ -15,4 +15,18 @@ class GetSportsUseCase(private val sportsRepository: SportsRepositoryImpl)
     {
         return sportsRepository.getSports()  // Returns Flow from the repository
     }
+
+    fun execute(
+        radius: Int? = null,
+        featureIds: List<Int>? = null,
+        intensities: List<String>? = null,
+        name: String? = null
+    ): Flow<Result<List<SportsResponseItem>>> {
+        return sportsRepository.getSports(
+            radius = radius,
+            featureIds = featureIds,
+            intensities = intensities,
+            name = name
+        )
+    }
 }

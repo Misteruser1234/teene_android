@@ -1,5 +1,6 @@
 package com.example.teene.home.presentation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +32,7 @@ import com.example.teene.home.presentation.composables.FooterWithAction
 import com.example.teene.home.presentation.composables.TrainerImage
 import com.example.teene.home.presentation.composables.TrainerLocationInMap
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
+import com.example.teene.ui.composables.ComonFooter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.BookScreenDestination
@@ -52,123 +55,116 @@ fun CoachDetailsScreen(
     locationLng: Double,
     rate: Double,
     currency: String
-)
-{
-    Column(modifier = Modifier.fillMaxSize()) {
-        TrainerImage(
-            trainerImageUrl, modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-        )
-        Column(
-            Modifier
-                .padding(horizontal = 24.dp, vertical = 14.dp)
-                .fillMaxHeight()
-        ) {
-            Text(
-                text = trainerName,
-                style = TextStyle(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
+) {
+    Column(verticalArrangement = Arrangement.SpaceBetween) {
+        Column(modifier = Modifier.weight(1f)) {
+            TrainerImage(
+                trainerImageUrl, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
             )
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = featureNames,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.LightGray
+            Column(
+                Modifier
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 14.dp).weight(1f)
+                , verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = trainerName,
+                    style = TextStyle(
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
-            Text(
-                text = "About",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = featureNames,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.LightGray
+                    )
                 )
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = about,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.LightGray
+                Spacer(Modifier.height(30.dp))
+                Text(
+                    text = "About",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 )
-            )
 
-            Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(8.dp))
 
-            Text(
-                text = "Location",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                Text(
+                    text = about,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.LightGray
+                    )
                 )
-            )
 
-            Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(24.dp))
 
-            Text(
-                text = address,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.LightGray
+                Text(
+                    text = "Location",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 )
-            )
 
-            Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(4.dp))
 
+                Text(
+                    text = address,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.LightGray
+                    )
+                )
+            }
+        }
+        Column {
             Column {
                 TrainerLocationInMap(
                     latitude = locationLat,
                     longitude = locationLng,
                     name = trainerName,
-                    modifier = Modifier.height(250.dp)
-                )
-
-                Spacer(Modifier.height(24.dp))
-                FooterWithAction(
-                    leftContent = {
-                        Text(
-                            buildAnnotatedString {
-                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                    append("$rate ")
-                                }
-                                append(currency)
-                            },
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-                    },
-                    rightContent = {
-                        Button(
-                            onClick = {navigator.navigate(BookScreenDestination(
-                                trainerId = trainerId,
-                                trainerName = trainerName,
-                                featureNames = featureNames,
-                                rate = rate,
-                                currency = currency
-                           ))},
-                            shape = RoundedCornerShape(corner = CornerSize(8.dp)),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A5D7)) // Similar to your image
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.rocket_1),
-                                contentDescription = null
-                            )
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Text("Book")
-                        }
-                    }
+                    modifier = Modifier.height(200.dp)
                 )
             }
-
+            ComonFooter(
+                leftContent = {
+                    Text(
+                        buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("$rate ")
+                            }
+                            append(currency)
+                        },
+                        fontSize = 16.sp,
+                        color = Color.Black
+                    )
+                },
+                buttonText = "Book now",
+                onButtonClick = {
+                    navigator.navigate(
+                        BookScreenDestination(
+                            trainerId = trainerId,
+                            trainerName = trainerName,
+                            featureNames = featureNames,
+                            rate = rate,
+                            currency = currency
+                        )
+                    )
+                },
+                buttonEnabled = true,
+                buttonIconId = R.drawable.rocket_1
+            )
         }
     }
 

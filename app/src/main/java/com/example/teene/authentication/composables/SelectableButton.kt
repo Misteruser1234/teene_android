@@ -16,10 +16,12 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun SelectableButton(
-    modifier: Modifier = Modifier, text: String, isSelected: Boolean, onClick: () ->
-    Unit, isEnabled: Boolean = true
-)
-{
+    modifier: Modifier = Modifier,
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    isEnabled: Boolean = true
+) {
     OutlinedButton(
         modifier = modifier,
         onClick = onClick,
@@ -28,14 +30,12 @@ fun SelectableButton(
             color = if (isSelected) Color.Transparent else Color(0xFFE8E7E5)
         ),
         colors = ButtonDefaults.buttonColors(
-            containerColor = when
-            {
+            containerColor = when {
                 isSelected -> MaterialTheme.colorScheme.primary
                 !isEnabled -> Color.LightGray
                 else -> Color.White
             },
-            contentColor = when
-            {
+            contentColor = when {
                 isSelected -> Color.White
                 !isEnabled -> Color.DarkGray
                 else -> Color.Black

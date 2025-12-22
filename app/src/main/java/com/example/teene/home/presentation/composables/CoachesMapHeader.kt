@@ -24,7 +24,7 @@ import com.example.teene.R
 /**
  * Header for the coaches map screen. Shows Back and Filter actions.
  * Both icons are displayed inside a circular border (#F0F0F0),
- * matching the style used in ExploreHeader.
+ * matching the style used in CommonHeader.
  * Created by 3100lari on 2025/11/05
  */
 @Composable

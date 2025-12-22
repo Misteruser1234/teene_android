@@ -16,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.teene.home.presentation.composables.ExploreHeader
+import com.example.teene.home.presentation.composables.CommonHeader
 import com.example.teene.home.presentation.composables.SearchBarWithFilters
+import com.example.teene.home.presentation.composables.TopicsSelectableList
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -37,7 +38,12 @@ fun EventsScreen(
     val state = vm.uiState.collectAsStateWithLifecycle().value
 
     Column(Modifier.fillMaxWidth()) {
-        ExploreHeader("Events")
+        CommonHeader("Events")
+        TopicsSelectableList(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 10.dp)
+        )
         HorizontalDivider(color = Color(0x3F3F3F99))
         SearchBarWithFilters(
             modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp),

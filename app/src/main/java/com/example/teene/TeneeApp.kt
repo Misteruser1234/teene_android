@@ -23,6 +23,7 @@ import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.BookScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.CoachDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.CoachesMapScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ExploreFilterScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ForgotPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginScreenDestination
@@ -95,6 +96,7 @@ private val DestinationSpec.shouldShowScaffoldElements get() = this !in Authenti
     && this != ForgotPasswordScreenDestination
     && this != PasswordResetScreenDestination
     && this != CoachesMapScreenDestination
+    && this != ExploreFilterScreenDestination
 // Compare this snippet from app/src/main/java/com/example/teene/ui/composables/TeneeScaffold.kt:
 
 //@Composable

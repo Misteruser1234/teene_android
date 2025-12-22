@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.teene.R
-import com.example.teene.home.presentation.composables.ExploreHeader
+import com.example.teene.home.presentation.composables.CommonHeader
 import com.example.teene.home.presentation.composables.MapViewButton
 import com.example.teene.home.presentation.composables.SearchBarWithFilters
 import com.example.teene.home.presentation.composables.TopicsSelectableList
@@ -39,7 +39,6 @@ import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CoachDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.CoachesMapScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 
@@ -69,13 +68,23 @@ fun SportScreen(
             Modifier
                 .fillMaxSize()
         ) {
-            ExploreHeader(sportName)
-            TopicsSelectableList(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 10.dp)
-            )
-            HorizontalDivider(color = Color(0x3F3F3F99))
+            val selectedName = sportViewModel.selectedSportName.collectAsStateWithLifecycle().value
+            CommonHeader(selectedName ?: sportName)
+
+            // Horizontal list of sports with icons
+            run {
+                val sports = sportViewModel.sports.collectAsStateWithLifecycle().value
+                val selectedId = sportViewModel.selectedSportId.collectAsStateWithLifecycle().value
+                com.example.teene.home.presentation.composables.SportsHorizontalSelector(
+                    sports = sports,
+                    selectedSportId = selectedId,
+                    onSportClick = { id -> sportViewModel.loadTrainersForSport(id) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+
             SearchBarWithFilters(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp))
 
             val trainers = sportViewModel.trainersList.collectAsStateWithLifecycle().value

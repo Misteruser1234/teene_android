@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SportItemDescription(
     trainerNumberCategoryText: String,
-    sportName: String
+    sportName: String,
+    highlightQuery: String? = null
 )
 {
     Column {
@@ -40,8 +41,29 @@ fun SportItemDescription(
                 .padding(8.dp) // Padding inside the background
         )
         Spacer(modifier = Modifier.height(1.dp))
-        Text(
-            text = sportName,
+        val annotated = run {
+            val q = highlightQuery?.takeIf { it.isNotBlank() }
+            if (q != null) {
+                val start = sportName.indexOf(q, ignoreCase = true)
+                if (start >= 0) {
+                    val end = start + q.length
+                    androidx.compose.ui.text.buildAnnotatedString {
+                        append(sportName)
+                        addStyle(
+                            style = androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold),
+                            start = start,
+                            end = end
+                        )
+                    }
+                } else {
+                    androidx.compose.ui.text.AnnotatedString(sportName)
+                }
+            } else {
+                androidx.compose.ui.text.AnnotatedString(sportName)
+            }
+        }
+        androidx.compose.material3.Text(
+            text = annotated,
             fontSize = 32.sp,
             color = Color.White,
             lineHeight = 46.sp,

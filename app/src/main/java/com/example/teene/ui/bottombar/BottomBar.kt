@@ -16,6 +16,7 @@ import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import com.ramcosta.composedestinations.utils.startDestination
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
+import com.ramcosta.composedestinations.generated.destinations.EventsFilterScreenDestination
 
 /**
  * Created by 3100lari on 2025/02/13
@@ -28,6 +29,12 @@ fun BottomBar(
 ) {
     val currentDestination: DestinationSpec = navController.currentDestinationAsState().value
         ?: NavGraphs.root.startDestination
+
+    // Defensive guard: never show bottom bar on EventsFilterScreen even if caller forgets to hide it
+    if (currentDestination == EventsFilterScreenDestination) {
+        return
+    }
+
     NavigationBar(containerColor = Color.White)  {
         BottomBarDestination.entries.forEach { destination ->
             NavigationBarItem(

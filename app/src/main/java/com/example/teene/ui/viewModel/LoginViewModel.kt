@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
  */
 class LoginViewModel(
     private val loginUseCase: LoginUseCase,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val userDataStore: com.example.teene.data.UserDataStore
 ) : ViewModel()
 {
     private val _userLoginState =
@@ -38,6 +39,10 @@ class LoginViewModel(
                         val data = result.getOrNull()
                         data?.authorization?.token?.let { token ->
                             tokenManager.saveToken(token)
+                        }
+                        // Persist user_id for authorized sessions (used by bookings)
+                        data?.id?.let { id ->
+                            userDataStore.saveUserId(id)
                         }
                     }
                     if (result.isFailure)

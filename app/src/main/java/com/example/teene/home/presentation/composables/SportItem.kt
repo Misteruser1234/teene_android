@@ -34,7 +34,8 @@ fun SportItem(
     trainerNumberCategoryText: String,
     sportName: String,
     imageUrl: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    highlightQuery: String? = null
 )
 {
     Box(
@@ -64,7 +65,8 @@ fun SportItem(
         ) {
             SportItemDescription(
                 trainerNumberCategoryText = trainerNumberCategoryText,
-                sportName = sportName
+                sportName = sportName,
+                highlightQuery = highlightQuery
             )
         }
     }

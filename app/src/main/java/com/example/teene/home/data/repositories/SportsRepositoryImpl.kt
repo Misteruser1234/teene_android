@@ -10,10 +10,20 @@ class SportsRepositoryImpl(
     private val apiService: AuthorizedApiService
 )
 {
-    fun getSports(): Flow<Result<List<SportsResponseItem>>> = flow {
+    fun getSports(
+        radius: Int? = null,
+        featureIds: List<Int>? = null,
+        intensities: List<String>? = null,
+        name: String? = null
+    ): Flow<Result<List<SportsResponseItem>>> = flow {
         try
         {
-            val response = apiService.getSports()
+            val response = apiService.getSports(
+                radius = radius,
+                featureIds = featureIds,
+                intensities = intensities,
+                name = name
+            )
             if (response.isSuccessful)
             {
                 Log.i("SportsRepository", "Sports fetched successfully: ${response.body()}")
