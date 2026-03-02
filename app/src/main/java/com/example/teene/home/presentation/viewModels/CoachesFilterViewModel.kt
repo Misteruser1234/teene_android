@@ -105,7 +105,7 @@ class CoachesFilterViewModel(
                 currency = trainer.currency,
                 address = trainer.address,
                 distance = trainer.distance,
-                imageUrl = trainer.image.url,
+                imageUrl = trainer.images.firstOrNull()?.image?.url, 
                 rating = trainer.rating ?: 0.0,
                 about = trainer.about,
                 features = trainer.features,

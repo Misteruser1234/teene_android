@@ -8,6 +8,7 @@ import com.ramcosta.composedestinations.generated.destinations.EventsScreenDesti
 import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MySessionsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ProfileScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.InboxScreenDestination
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
 /**
@@ -20,7 +21,7 @@ enum class BottomBarDestination(
 ) {
     Explore(ExploreScreenDestination, R.drawable.ic_bottom_bar_search, R.string.explore),
     MySessions(MySessionsScreenDestination, R.drawable.ic_bottom_bar_trophy, R.string.my_sessions),
-    Inbox(MySessionsScreenDestination,icon=R.drawable.outline_inbox_text_24,R.string.inbox),
+    Inbox(InboxScreenDestination, icon = R.drawable.outline_inbox_text_24, R.string.inbox),
     Events(EventsScreenDestination, R.drawable.ic_bottom_bar_event, R.string.events),
     Profile(ProfileScreenDestination, R.drawable.ic_bottom_bar_profile, R.string.profile)
 }

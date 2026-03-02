@@ -50,17 +50,36 @@ import org.koin.androidx.compose.koinViewModel
 @Destination<RootGraph>(style = AuthorizationNavigationAnimations::class)
 @Composable
 fun ExploreFilterScreen(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator? = null
 ) {
-    // Share ExploreViewModel instance with ExploreScreen by scoping to Activity owner
-    val activity =
-        androidx.compose.ui.platform.LocalContext.current as androidx.activity.ComponentActivity
-    val vm = koinViewModel<ExploreViewModel>(viewModelStoreOwner = activity)
+    val isPreview = androidx.compose.ui.platform.LocalInspectionMode.current
 
-    // Observe data from VM
-    val features = vm.features.collectAsStateWithLifecycle().value
-    val preselectedFeatureIds = vm.selectedFeatureIds.collectAsStateWithLifecycle().value
-    val preselectedIntensities = vm.selectedIntensities.collectAsStateWithLifecycle().value
+    // Share ExploreViewModel instance with ExploreScreen by scoping to Activity owner (runtime only)
+    val activity = if (!isPreview) {
+        androidx.compose.ui.platform.LocalContext.current as androidx.activity.ComponentActivity
+    } else null
+    val vm = if (!isPreview && activity != null) koinViewModel<ExploreViewModel>(viewModelStoreOwner = activity) else null
+
+    // Observe data from VM or provide preview stubs
+    val features = if (!isPreview) {
+        vm!!.features.collectAsStateWithLifecycle().value
+    } else {
+        listOf(
+            com.example.teene.home.data.models.FeatureItem(id = 1, name = "Beginner friendly"),
+            com.example.teene.home.data.models.FeatureItem(id = 2, name = "Video analysis"),
+            com.example.teene.home.data.models.FeatureItem(id = 3, name = "Equipment provided")
+        )
+    }
+    val preselectedFeatureIds = if (!isPreview) {
+        vm!!.selectedFeatureIds.collectAsStateWithLifecycle().value
+    } else {
+        listOf(1, 3)
+    }
+    val preselectedIntensities = if (!isPreview) {
+        vm!!.selectedIntensities.collectAsStateWithLifecycle().value
+    } else {
+        listOf("Low", "High")
+    }
 
     // Local UI state (independent until Apply)
     var selectedIntensities by rememberSaveable { mutableStateOf(preselectedIntensities.toSet()) }
@@ -81,7 +100,7 @@ fun ExploreFilterScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedIconButton(
-                    onClick = { navigator.navigateUp() },
+                    onClick = { navigator?.navigateUp() },
                     shape = RoundedCornerShape(4.dp),
                     border = BorderStroke(1.dp, Color(0xFFCFCFCF))
                 ) {
@@ -143,9 +162,9 @@ fun ExploreFilterScreen(
             buttonEnabled = true,
             buttonIconId = null,
             onButtonClick = {
-                vm.updateIntensities(selectedIntensities.toList())
-                vm.updateFeatureIds(selectedFeatureIds.toList())
-                navigator.navigateUp()
+                vm?.updateIntensities(selectedIntensities.toList())
+                vm?.updateFeatureIds(selectedFeatureIds.toList())
+                navigator?.navigateUp()
             }
         )
     }

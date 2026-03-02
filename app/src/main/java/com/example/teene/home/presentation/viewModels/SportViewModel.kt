@@ -69,7 +69,7 @@ class SportViewModel(
                             currency = trainer.currency,
                             address = trainer.address,
                             distance = trainer.distance,
-                            imageUrl = trainer.image.url, // Ensure correct type
+                            imageUrl = trainer.images.firstOrNull()?.image?.url, // Updated for multiple images
                             rating = trainer.rating ?: 0.0, // Default to 0.0 if null
                             about = trainer.about ?: "", // Default to empty string if null
                             features = trainer.features ?: emptyList() // Default to empty list if null

@@ -37,6 +37,8 @@ fun ButtonWithIcon(
     iconId: Int?,
     text: String,
     enabled: Boolean = false,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = Color.White,
     onClick: () -> Unit,
 )
 {
@@ -45,8 +47,8 @@ fun ButtonWithIcon(
             onClick = { onClick.invoke() },
             enabled = enabled,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                containerColor = containerColor,
+                contentColor = contentColor
             ),
             contentPadding = PaddingValues(vertical = 12.dp, horizontal = 16.dp),
             shape = RoundedCornerShape(4.dp)

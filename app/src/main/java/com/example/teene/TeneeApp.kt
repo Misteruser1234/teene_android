@@ -45,8 +45,10 @@ fun TeneeApp()
 
     // 👇 this avoids a jump in the UI that would happen if we relied only on ShowLoginWhenLoggedOut
     val tokenExists = landingViewModel.tokenExists.collectAsStateWithLifecycle().value
+    val needsPostSignupChoice = landingViewModel.needsPostSignupChoice.collectAsStateWithLifecycle().value
+    val trainerOnboardingSelected = landingViewModel.trainerOnboardingSelected.collectAsStateWithLifecycle().value
     val start =
-        if (!tokenExists)
+        if (!tokenExists || needsPostSignupChoice || trainerOnboardingSelected)
         {
             AuthenticationGraph
         }

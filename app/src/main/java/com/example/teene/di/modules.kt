@@ -17,6 +17,8 @@ import com.example.teene.home.data.repositories.SportsRepositoryImpl
 import com.example.teene.home.data.repositories.MockTrainersRepositoryImpl
 import com.example.teene.home.data.repositories.TrainersRepository
 import com.example.teene.home.data.repositories.TrainersRepositoryImpl
+import com.example.teene.home.data.repositories.ImagesRepository
+import com.example.teene.home.data.repositories.ImagesRepositoryImpl
 import com.example.teene.home.domain.usecases.GetSportsUseCase
 import com.example.teene.home.domain.usecases.GetTrainerAvailabilityUseCase
 import com.example.teene.home.domain.usecases.GetTrainersForSportUseCase
@@ -30,28 +32,55 @@ import com.example.teene.ui.viewModel.ForgotPasswordViewModel
 import com.example.teene.ui.viewModel.LandingViewModel
 import com.example.teene.ui.viewModel.LoginViewModel
 import com.example.teene.ui.viewModel.RegisterViewModel
+import com.example.teene.authentication.register.trainer.RegisterTrainerImagesViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import java.io.File
 
 
 val landingModule = module {
-    single { LandingDataStore(androidContext()) }
+    // Shared coroutine scope for DataStore
+    single { CoroutineScope(Dispatchers.IO + SupervisorJob()) }
+
+    // Singleton Preferences DataStores
+    single<DataStore<Preferences>>(named("userPrefs")) {
+        PreferenceDataStoreFactory.create(
+            scope = get(),
+            produceFile = { File(androidContext().filesDir, "user_prefs.preferences_pb") }
+        )
+    }
+    single<DataStore<Preferences>>(named("appPrefs")) {
+        // Keep the original file name to preserve existing data
+        PreferenceDataStoreFactory.create(
+            scope = get(),
+            produceFile = { File(androidContext().filesDir, "application_prefferences.preferences_pb") }
+        )
+    }
+
+    // Singletons that depend on DataStore singletons
+    single { LandingDataStore(get(named("appPrefs"))) }
     single { UsersRepository(get()) }
     // Provide the use case
     single { CreateUserUseCase(get()) }
     single { ForgotPasswordUseCase(get()) }
     single { LoginUseCase(get()) }
-    single { TokenManager(androidContext()) }
+    single { TokenManager(get(named("userPrefs"))) }
     // UserDataStore to keep authorized user's local data (e.g., user_id)
-    single { com.example.teene.data.UserDataStore(androidContext()) }
+    single { com.example.teene.data.UserDataStore(get(named("userPrefs"))) }
 
-    viewModel { LandingViewModel(get()) }
+    viewModel { LandingViewModel(get(), get(), get()) }
     viewModel { RegisterViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel(get()) }
@@ -75,12 +104,17 @@ val homeModule = module {
         com.example.teene.home.data.repositories.TrainingBookingsRepositoryImpl(get(), get())
     }
     single { com.example.teene.home.domain.usecases.BookTrainingUseCase(get()) }
+    single { com.example.teene.home.domain.usecases.GetTrainingBookingsUseCase(get()) }
+
+    // Images: repository for upload/delete
+    single<ImagesRepository> { ImagesRepositoryImpl(get(), androidContext().contentResolver) }
 
     single { GetTrainerAvailabilityUseCase(get()) }
     viewModel { ExploreViewModel(get(), get<com.example.teene.home.domain.usecases.GetFeaturesUseCase>()) }
     viewModel { SportViewModel(get(), get()) }
     viewModel { BookingTrainerViewModel(get(), get<com.example.teene.home.domain.usecases.BookTrainingUseCase>()) }
     viewModel { CoachesFilterViewModel(get(), get(), get()) }
+    viewModel { com.example.teene.mysessions.presentation.MySessionsViewModel(get()) }
 
     // Bind TrainersRepository.
     // Toggle by commenting/uncommenting one of the lines below.
@@ -94,6 +128,10 @@ val homeModule = module {
 
     single { GetTrainersForSportUseCase(get()) }
     single { GetAllTrainersUseCase(get()) }
+
+    // ViewModels
+    viewModel { RegisterTrainerImagesViewModel(get(), get()) }
+    viewModel { com.example.teene.authentication.register.trainer.RegisterTrainerViewModel(get(), get<com.example.teene.home.domain.usecases.GetFeaturesUseCase>()) }
 }
 
 val eventsModule = module {

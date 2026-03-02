@@ -19,22 +19,28 @@ class BookTrainingUseCase(
 ) {
     suspend operator fun invoke(
         trainerId: Int,
-        selectedDateMillis: Long,
-        selectedTimeHHmm: String,
+        startDateTimeMillis: Long,
         zoneId: ZoneId = ZoneId.systemDefault()
     ): Result<TrainingBookingResponse> {
-        val utcString = toUtcString(selectedDateMillis, selectedTimeHHmm, zoneId)
+        val utcString = toUtcString(Instant.ofEpochMilli(startDateTimeMillis).atZone(zoneId).toLocalDateTime(), zoneId)
+        return repository.bookTraining(trainerId, utcString)
+    }
+
+    suspend operator fun invoke(
+        trainerId: Int,
+        startDateTime: LocalDateTime,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): Result<TrainingBookingResponse> {
+        val utcString = toUtcString(startDateTime, zoneId)
         return repository.bookTraining(trainerId, utcString)
     }
 
     /**
      * Builds the UTC string like: 2025-08-17 13:00:00 UTC
      */
-    private fun toUtcString(dateMillis: Long, timeHHmm: String, zoneId: ZoneId): String {
-        val localDate = Instant.ofEpochMilli(dateMillis).atZone(zoneId).toLocalDate()
-        val localTime = LocalTime.parse(timeHHmm.padStart(5, '0')) // expect HH:mm
-        val localDateTime = LocalDateTime.of(localDate, localTime)
-        val utcInstant = localDateTime.atZone(zoneId).withZoneSameInstant(ZoneOffset.UTC).toInstant()
+    private fun toUtcString(localDateTime: LocalDateTime, zoneId: ZoneId): String {
+        val zoned = localDateTime.atZone(zoneId)
+        val utcInstant = zoned.withZoneSameInstant(ZoneOffset.UTC).toInstant()
         val utcDateTime = utcInstant.atZone(ZoneOffset.UTC).toLocalDateTime()
         val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'")
         return utcDateTime.format(fmt)

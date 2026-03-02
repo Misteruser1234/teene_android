@@ -4,33 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.teene.di.eventsModule
-import com.example.teene.di.homeModule
-import com.example.teene.di.landingModule
-import com.example.teene.di.networkModule
 import com.example.teene.ui.theme.TeeneTheme
-import org.koin.android.ext.koin.androidContext
-import org.koin.compose.KoinApplication
 
-class MainActivity : ComponentActivity()
-{
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            KoinApplication(application = {
-                androidContext(application)
-                modules(
-                    landingModule,
-                    networkModule,
-                    homeModule,
-                    eventsModule
-                )
-            }) {
-                TeeneTheme {
-                    enableEdgeToEdge()
-                    TeneeApp()
-                }
+            TeeneTheme {
+                enableEdgeToEdge()
+                TeneeApp()
             }
         }
     }

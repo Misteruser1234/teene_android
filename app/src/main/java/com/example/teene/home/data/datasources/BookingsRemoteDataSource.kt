@@ -10,4 +10,7 @@ class BookingsRemoteDataSource(
 ) {
     suspend fun createTrainingBooking(request: TrainingBookingRequest): Response<TrainingBookingResponse> =
         api.createTrainingBooking(request)
+
+    suspend fun getTrainingBookings(): Response<List<com.example.teene.home.data.models.TrainingBookingDto>> =
+        api.getTrainingBookings()
 }

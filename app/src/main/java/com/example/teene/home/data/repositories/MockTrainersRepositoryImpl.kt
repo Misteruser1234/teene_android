@@ -24,7 +24,7 @@ class MockTrainersRepositoryImpl : TrainersRepository {
             currency = "EUR",
             address = "Madrid, Spain",
             distance = 3.2,
-            image = ImageItem(url = "https://images.unsplash.com/photo-1587502536955-6df563e350b5?q=80&w=1080&auto=format"),
+            images = listOf(com.example.teene.home.data.models.TrainerImageItem(image = ImageItem(url = "https://images.unsplash.com/photo-1587502536955-6df563e350b5?q=80&w=1080&auto=format"))),
             rating = 4.8,
             about = "Former WPT player with 8+ years of coaching experience. Focus on tactics and positioning.",
             features = listOf(
@@ -43,7 +43,7 @@ class MockTrainersRepositoryImpl : TrainersRepository {
             currency = "EUR",
             address = "Chamartín, Madrid",
             distance = 5.7,
-            image = ImageItem(url = "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=1080&auto=format"),
+            images = listOf(com.example.teene.home.data.models.TrainerImageItem(image = ImageItem(url = "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=1080&auto=format"))),
             rating = 4.6,
             about = "Certified padel coach specialized in technique and footwork for intermediate players.",
             features = listOf(

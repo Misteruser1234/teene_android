@@ -13,7 +13,7 @@ data class TrainerWithCoordinates(
     val longitude: Double,
     val rate: Double,
     val currency: String,
-    val address: String,
+    val address: String?,
     val distance: Double,
     val rating: Double?,
     val about: String,

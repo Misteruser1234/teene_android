@@ -3,18 +3,14 @@ package com.example.teene.data
 /**
  * Created by 3100lari on 2025/02/09
  */
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-val Context.dataStore by preferencesDataStore(name = "user_prefs")
-
-class TokenManager(context: Context) {
-
-    private val dataStore = context.dataStore
+class TokenManager(private val dataStore: DataStore<Preferences>) {
 
     // Define the key for the token
     private val TOKEN_KEY = stringPreferencesKey("auth_token")

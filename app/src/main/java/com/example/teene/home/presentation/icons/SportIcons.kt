@@ -1,10 +1,9 @@
 package com.example.teene.home.presentation.icons
 
-import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.painter.Painter
 import com.example.teene.R
 
 /**
@@ -31,16 +30,17 @@ fun sportIconPainter(name: String): Painter {
 
     val normalized = normalize(name)
 
-    // Synonyms mapping derived from the Swift example
     val synonyms = mapOf(
         "taekwondo" to "martial",
         "powerlifting" to "strengthtraining_traditional",
         "cycling" to "outdoor_cycle",
         "football" to "soccer",
+        "football" to "soccer",
         "rowing" to "rower",
         "skiing" to "skiing_downhill",
         "swimming" to "pool_swim",
-        "skateboarding" to "skating"
+        "skateboarding" to "skating",
+        "tennis" to "tennis"
     )
 
     val mapped = synonyms[normalized]
@@ -48,20 +48,19 @@ fun sportIconPainter(name: String): Painter {
     val candidates = listOfNotNull(mapped, normalized).distinct()
 
     for (key in candidates) {
-        val drawableName = "sport_icon_${'$'}key"
+        val drawableName = "sport_icon_$key"
         val id = resources.getIdentifier(drawableName, "drawable", pkg)
         if (id != 0) {
             return painterResource(id)
         }
     }
 
-    // Fallback to default icon
     return painterResource(R.drawable.sport_icon_default)
 }
 
 @Deprecated(
     message = "Use sportIconPainter(name) which resolves drawable painters by name.",
-    replaceWith = kotlin.ReplaceWith("sportIconPainter(name)")
+    replaceWith = ReplaceWith("sportIconPainter(name)")
 )
 @Composable
 fun sportIconFor(name: String): Painter = sportIconPainter(name)

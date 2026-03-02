@@ -7,10 +7,16 @@ import com.example.teene.home.data.models.TrainerAvailabilityResponse
 import com.example.teene.home.data.models.TrainerResponseItem
 import com.example.teene.home.data.models.TrainingBookingRequest
 import com.example.teene.home.data.models.TrainingBookingResponse
+import com.example.teene.home.data.models.UploadedImageDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -55,8 +61,25 @@ interface AuthorizedApiService
         @Query("page_size") pageSize: Int? = null
     ): Response<List<EventDto>>
 
+    @GET("/training_bookings")
+    suspend fun getTrainingBookings(): Response<List<com.example.teene.home.data.models.TrainingBookingDto>>
+
     @POST("/training_bookings")
     suspend fun createTrainingBooking(
         @Body request: TrainingBookingRequest
     ): Response<TrainingBookingResponse>
+
+    // Images API
+    @Multipart
+    @POST("/images")
+    suspend fun uploadImage(
+        @Part("imageable_id") imageableId: RequestBody,
+        @Part("imageable_type") imageableType: RequestBody,
+        @Part image: MultipartBody.Part
+    ): Response<UploadedImageDto>
+
+    @DELETE("/images/{id}")
+    suspend fun deleteImage(
+        @Path("id") id: Int
+    ): Response<Unit>
 }

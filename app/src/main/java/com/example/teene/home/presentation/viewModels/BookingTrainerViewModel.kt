@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class BookingTrainerViewModel(
     private val getTrainerAvailabilityUseCase: GetTrainerAvailabilityUseCase,
@@ -58,10 +60,21 @@ class BookingTrainerViewModel(
         }
     }
 
-    fun bookSession(trainerId: Int, selectedDateMillis: Long, selectedTimeHHmm: String) {
+    fun bookSession(trainerId: Int, startDateTimeMillis: Long) {
         viewModelScope.launch {
             _bookingState.value = BookingUiState.Loading
-            val result = bookTrainingUseCase(trainerId, selectedDateMillis, selectedTimeHHmm)
+            val result = bookTrainingUseCase(trainerId, startDateTimeMillis)
+            _bookingState.value = result.fold(
+                onSuccess = { BookingUiState.Success(it) },
+                onFailure = { BookingUiState.Error(it.message ?: "Booking failed") }
+            )
+        }
+    }
+
+    fun bookSession(trainerId: Int, startDateTime: LocalDateTime, zoneId: ZoneId = ZoneId.systemDefault()) {
+        viewModelScope.launch {
+            _bookingState.value = BookingUiState.Loading
+            val result = bookTrainingUseCase(trainerId, startDateTime, zoneId)
             _bookingState.value = result.fold(
                 onSuccess = { BookingUiState.Success(it) },
                 onFailure = { BookingUiState.Error(it.message ?: "Booking failed") }

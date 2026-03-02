@@ -1,7 +1,9 @@
 package com.example.teene.authentication.register.user
 
 import ToggleablePhysicalLevel
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,130 +53,113 @@ fun RegisterUserScreen(
     email: String,
     password: String,
     navigator: DestinationsNavigator? = null
-)
-{
+) {
     val registerViewModel = koinViewModel<RegisterViewModel>()
-
+    var ageText by rememberSaveable { mutableStateOf("") }
+    var phoneNumberText by rememberSaveable { mutableStateOf("") }
+    var selectedGender by remember { mutableStateOf<String?>("") }
     Column(
         Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = "Almost ready!",
-            style = TextStyle(
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 32.sp,
-                letterSpacing = (-0.02).sp,
-                textAlign = TextAlign.Start,
-                color = Color.Black
-            )
-        )
-        Spacer(Modifier.height(20.dp))
-        Text(
-            text = "To help the coach prepare more effectively for your session, it would be useful to know a few basic details about you",
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 24.sp,
-                letterSpacing = (-0.02).sp,
-                textAlign = TextAlign.Start,
-                color = Color(0xFF7A7A7A)
-            )
-        )
-        Spacer(Modifier.height(40.dp))
-
-        var nameText by rememberSaveable { mutableStateOf("") }
-
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = nameText,
-            onValueChange = { nameText = it },
-            placeholder = { Text("Type your name here") },
-            label = { Text("Name") },
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color(0xFF7A7A7A),
-                    unfocusedBorderColor = Color(0xFFF0F0F0),
-                    focusedBorderColor = Color.Black,
-                    focusedLabelColor = Color.Black
+        Column {
+            Text(
+                text = "Almost ready!",
+                style = TextStyle(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 32.sp,
+                    letterSpacing = (-0.02).sp,
+                    textAlign = TextAlign.Start,
+                    color = Color.Black
                 )
-        )
-        Spacer(Modifier.height(40.dp))
-        var ageText by rememberSaveable { mutableStateOf("") }
-
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = ageText,
-            onValueChange = { ageText = it },
-            placeholder = { Text("Type your age here") },
-            label = { Text("Age") },
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color(0xFF7A7A7A),
-                    unfocusedBorderColor = Color(0xFFF0F0F0),
-                    focusedBorderColor = Color.Black,
-                    focusedLabelColor = Color.Black
-                )
-        )
-
-        Spacer(Modifier.height(40.dp))
-
-        var selectedGender by remember { mutableStateOf<String?>("") }
-        ToggleableGender(onSelectedGender = {
-            selectedGender = when (it)
-            {
-                is GenderButtons.Female -> "female"
-                is GenderButtons.Male -> "male"
-                GenderButtons.Unselected -> ""
-            }
-        })
-
-        Spacer(Modifier.height(40.dp))
-
-        var phoneNumberText by rememberSaveable { mutableStateOf("") }
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = phoneNumberText,
-            onValueChange = { phoneNumberText = it },
-            placeholder = { Text("Type your phone number here") },
-            label = { Text("Phone Number") },
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color(0xFF7A7A7A),
-                    unfocusedBorderColor = Color(0xFFF0F0F0),
-                    focusedBorderColor = Color.Black,
-                    focusedLabelColor = Color.Black
-                ),
-
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-        )
-        Spacer(Modifier.height(40.dp))
-
-        ToggleablePhysicalLevel(onSelectedLevel = {})
-
-        HorizontalDivider(Modifier.padding(top = 32.dp), color = Color(0x3F3F3F99))
-
-        Spacer(Modifier.height(24.dp))
-        ButtonWithIcon(
-            enabled = true,
-            modifier = Modifier.fillMaxWidth(),
-            iconId = R.drawable.rocket_1,
-            text = "Continue to the App"
-        ) {
-            registerViewModel.createUser(
-                name = nameText,
-                age = ageText.toIntOrNull(),
-                gender = selectedGender,
-                emailInput = email,
-                passwordInput = password,
-                phoneNumber = phoneNumberText,
             )
-            navigator?.navigate(ExploreScreenDestination) {
-                launchSingleTop = true
+            Spacer(Modifier.height(20.dp))
+            Text(
+                text = "To help the coach prepare more effectively for your session, it would be useful to know a few basic details about you",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 24.sp,
+                    letterSpacing = (-0.02).sp,
+                    textAlign = TextAlign.Start,
+                    color = Color(0xFF7A7A7A)
+                )
+            )
+            Spacer(Modifier.height(40.dp))
 
-                popUpTo(RegisterUserScreenDestination) {
-                    inclusive = true
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = ageText,
+                onValueChange = { ageText = it },
+                placeholder = { Text("Type your age here") },
+                label = { Text("Age") },
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        unfocusedTextColor = Color(0xFF7A7A7A),
+                        unfocusedBorderColor = Color(0xFFF0F0F0),
+                        focusedBorderColor = Color.Black,
+                        focusedLabelColor = Color.Black
+                    )
+            )
+
+            Spacer(Modifier.height(40.dp))
+            ToggleableGender(onSelectedGender = {
+                selectedGender = when (it) {
+                    is GenderButtons.Female -> "female"
+                    is GenderButtons.Male -> "male"
+                    GenderButtons.Unselected -> ""
+                }
+            })
+
+            Spacer(Modifier.height(40.dp))
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = phoneNumberText,
+                onValueChange = { phoneNumberText = it },
+                placeholder = { Text("Type your phone number here") },
+                label = { Text("Phone Number") },
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        unfocusedTextColor = Color(0xFF7A7A7A),
+                        unfocusedBorderColor = Color(0xFFF0F0F0),
+                        focusedBorderColor = Color.Black,
+                        focusedLabelColor = Color.Black
+                    ),
+
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+            Spacer(Modifier.height(40.dp))
+
+            ToggleablePhysicalLevel(onSelectedLevel = {})
+        }
+
+        Column {
+
+            HorizontalDivider(Modifier.padding(top = 32.dp), color = Color(0x3F3F3F99))
+
+            Spacer(Modifier.height(24.dp))
+            ButtonWithIcon(
+                enabled = true,
+                modifier = Modifier.fillMaxWidth(),
+                iconId = R.drawable.rocket_1,
+                text = "Continue to the App"
+            ) {
+                registerViewModel.createUser(
+                    emailInput = email,
+                    passwordInput = password,
+                    age = ageText.toIntOrNull(),
+                    gender = selectedGender,
+                    phoneNumber = phoneNumberText,
+                )
+                navigator?.navigate(ExploreScreenDestination) {
+                    launchSingleTop = true
+
+                    popUpTo(RegisterUserScreenDestination) {
+                        inclusive = true
+                    }
                 }
             }
         }
@@ -184,8 +169,7 @@ fun RegisterUserScreen(
 
 @Preview
 @Composable
-fun AlmostReadyScreenPreview()
-{
+fun AlmostReadyScreenPreview() {
     RegisterUserScreen(
         "testEmail", "testPassword",
     )

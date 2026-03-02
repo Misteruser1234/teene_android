@@ -65,20 +65,19 @@ fun LoginScreen(
 {
     val loginViewModel = koinViewModel<LoginViewModel>()
     val loginState = loginViewModel.userLoginState.collectAsStateWithLifecycle().value
-    when (loginState)
-    {
-        LoginUIState.Initial,
-        LoginUIState.Loading -> Unit
+    val context = LocalContext.current
 
-        is LoginUIState.Error ->
-        {
-            Toast.makeText(LocalContext.current, "Wrong password or email", Toast.LENGTH_SHORT)
-                .show()
-        }
-
-        is LoginUIState.Success ->
-        {
-            navigator.navigate(ExploreScreenDestination)
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginUIState.Error -> {
+                Toast.makeText(context, "Wrong password or email", Toast.LENGTH_SHORT).show()
+                loginViewModel.resetLoginState()
+            }
+            is LoginUIState.Success -> {
+                navigator.navigate(ExploreScreenDestination)
+                loginViewModel.resetLoginState()
+            }
+            else -> Unit
         }
     }
     Column(
@@ -186,8 +185,9 @@ fun LoginScreen(
                     passwordInput = passwordText
                 )
             },
+            enabled = loginState !is LoginUIState.Loading,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF7A7A7A),
+                containerColor = Color(0xFF009DC3),
                 contentColor = Color.White
             ),
             shape = RoundedCornerShape(4.dp),

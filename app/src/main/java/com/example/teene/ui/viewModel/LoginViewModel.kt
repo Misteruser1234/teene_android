@@ -53,4 +53,8 @@ class LoginViewModel(
                 }
         }
     }
+
+    fun resetLoginState() {
+        viewModelScope.launch { _userLoginState.emit(LoginUIState.Initial) }
+    }
 }

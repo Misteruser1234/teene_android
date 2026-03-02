@@ -57,6 +57,7 @@ fun RegisterScreen(
 )
 {
     val registerViewModel = koinViewModel<RegisterViewModel>()
+    val landingVm = koinViewModel<com.example.teene.ui.viewModel.LandingViewModel>()
     Column(
         Modifier
             .fillMaxSize()
@@ -65,13 +66,7 @@ fun RegisterScreen(
         AuthenticationHeader(
             Modifier.padding(top = 64.dp, bottom = 32.dp),
             headerTitle = "Welcome!",
-            headerDescription = "Start you journey as a trainer",
-            clickableString = "Click here",
-            onClick = {
-                navigator.navigate(RegisterTrainerScreenDestination) {
-                    launchSingleTop = true
-                }
-            }
+            headerDescription = ""
         )
         var emailText by rememberSaveable { mutableStateOf("") }
 
@@ -204,20 +199,23 @@ fun RegisterScreen(
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = {
-                navigator.navigate(
-                    RegisterUserScreenDestination(
-                        email = emailText,
-                        password = passwordText
-                    )
-                )
+                // Mark that we must show post-signup choice even if a token is present
+                landingVm.setNeedsPostSignupChoice(true)
+                // Create account, then navigate to post-signup choice screen
                 registerViewModel.createUser(
                     emailInput = emailText,
                     passwordInput = passwordText
                 )
+                navigator.navigate(
+                    com.ramcosta.composedestinations.generated.destinations.PostSignupChoiceScreenDestination(
+                        email = emailText,
+                        password = passwordText
+                    )
+                )
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFF0F0F0),
-                contentColor = Color.DarkGray
+                containerColor = Color(0xFF009DC3),
+                contentColor = Color.White
             ),
             shape = RoundedCornerShape(4.dp),
             modifier = Modifier

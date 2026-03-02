@@ -36,6 +36,7 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,18 +63,18 @@ import androidx.compose.ui.window.Popup
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.teene.R
 import com.example.teene.authentication.composables.SelectableButton
+import com.example.teene.home.presentation.models.BookingUiState
 import com.example.teene.home.presentation.models.TrainerAvailabilityUiState
 import com.example.teene.home.presentation.viewModels.BookingTrainerViewModel
 import com.example.teene.home.presentation.viewModels.SportViewModel
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
+import com.example.teene.ui.composables.ComonFooter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.generated.destinations.MySessionsScreenDestination
 import org.koin.androidx.compose.koinViewModel
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.Date
 import java.util.Locale
 
 /**
@@ -92,18 +93,28 @@ fun BookScreen(
 {
     val bookingTrainerViewModel = koinViewModel<BookingTrainerViewModel>()
 
-    var selectedDateTime by remember { mutableStateOf("") }
-    var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
+    var selectedDateTime by remember { mutableStateOf<java.time.LocalDateTime?>(null) }
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var peopleCount by remember { mutableStateOf(1) }
 
     // Observe booking state
     val bookingState = bookingTrainerViewModel.bookingState.collectAsStateWithLifecycle().value
-    val isBookingLoading = bookingState is com.example.teene.home.presentation.models.BookingUiState.Loading
+    val isBookingLoading = bookingState is BookingUiState.Loading
 
+    // On first composition, default the selected date to today and fetch availability for today
+    LaunchedEffect(Unit) {
+        bookingTrainerViewModel.fetchTrainerAvailability(
+            trainerId = trainerId,
+            startDate = selectedDate,
+            endDate = selectedDate
+        )
+    }
+
+    
     // Navigate to My Sessions on successful booking
     LaunchedEffect(bookingState) {
         when (bookingState) {
-            is com.example.teene.home.presentation.models.BookingUiState.Success -> {
+            is BookingUiState.Success -> {
                 navigator.navigate(MySessionsScreenDestination) {
                     launchSingleTop = true
                 }
@@ -158,12 +169,13 @@ fun BookScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
         // Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -219,17 +231,15 @@ fun BookScreen(
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        DatePickerFieldToModal(onDateSelected = { millis ->
-            selectedDateMillis = millis
-            // Convert picked millis to LocalDate in device zone and fetch availability for that day
-            val selectedLocalDate = millis?.let {
-                java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-            }
-            if (selectedLocalDate != null) {
+        DatePickerFieldToModal(onDateSelected = { date ->
+            if (date != null) {
+                // Clear previously selected time when date changes
+                if (selectedDate != date) selectedDateTime = null
+                selectedDate = date
                 bookingTrainerViewModel.fetchTrainerAvailability(
                     trainerId = trainerId,
-                    startDate = selectedLocalDate,
-                    endDate = selectedLocalDate
+                    startDate = date,
+                    endDate = date
                 )
             }
         })
@@ -249,8 +259,19 @@ fun BookScreen(
                         .fillMaxWidth(0.33f)
                         .padding(4.dp),
                     text = it.time,
-                    isSelected = selectedDateTime == it.time,
-                    onClick = { if (it.isAvailable) selectedDateTime = it.time },
+                    isSelected = run {
+                        val sel = selectedDateTime
+                        val slotTime = parseLocalTime(it.time)
+                        sel != null && slotTime != null && sel.toLocalDate() == selectedDate && sel.toLocalTime() == slotTime
+                    },
+                    onClick = {
+                        if (it.isAvailable) {
+                            val slotTime = parseLocalTime(it.time)
+                            if (slotTime != null) {
+                                selectedDateTime = java.time.LocalDateTime.of(selectedDate, slotTime)
+                            }
+                        }
+                    },
                     isEnabled = it.isAvailable,
                 )
             }
@@ -292,14 +313,12 @@ fun BookScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Footer using common component
-        com.example.teene.ui.composables.ComonFooter(
+       ComonFooter(
             leftContent = {
                 Column(modifier = Modifier.weight(1f)) {
-                    // Price with bold amount
                     Text(
                         buildAnnotatedString {
-                            withStyle(style = androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold)) {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append("$rate ")
                             }
                             append(currency)
@@ -310,21 +329,17 @@ fun BookScreen(
                     )
 
                     // Date and time, bold when selected
-                    val dateText = selectedDateMillis?.let { millis: Long -> formatDayMonth(millis) }
-                    val timeText = if (selectedDateTime.isNotBlank()) selectedDateTime else null
-                    if (dateText != null || timeText != null) {
+                    val dateText = formatDayMonth(selectedDate)
+                    val timeText = selectedDateTime?.toLocalTime()?.let { formatTime(it) }
+                    if (timeText != null) {
                         Text(
                             buildAnnotatedString {
-                                if (dateText != null) {
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(dateText)
-                                    }
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(dateText)
                                 }
-                                if (dateText != null && timeText != null) append(" at ")
-                                if (timeText != null) {
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(timeText)
-                                    }
+                                append(" at ")
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(timeText)
                                 }
                             },
                             style = MaterialTheme.typography.bodyMedium,
@@ -332,9 +347,9 @@ fun BookScreen(
                         )
                     } else {
                         Text(
-                            text = "Pick date and time",
+                            text = dateText,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
+                            color = Color.Black
                         )
                     }
 
@@ -342,30 +357,45 @@ fun BookScreen(
                     Text("$peopleCount people", style = MaterialTheme.typography.bodySmall, color = Color.Black)
                 }
             },
-            buttonText = if (isBookingLoading) "Booking..." else "Book now",
+            buttonText = "Book now",
             onButtonClick = {
-                if (!isBookingLoading && selectedDateMillis != null && selectedDateTime.isNotBlank()) {
-                    bookingTrainerViewModel.bookSession(trainerId, selectedDateMillis!!, selectedDateTime)
+                val sel = selectedDateTime
+                if (!isBookingLoading && sel != null) {
+                    bookingTrainerViewModel.bookSession(trainerId, sel)
                 }
             },
-            buttonEnabled = !isBookingLoading && selectedDateMillis != null && selectedDateTime.isNotBlank(),
+            buttonEnabled = !isBookingLoading && selectedDateTime != null, 
             buttonIconId = R.drawable.rocket_1
         )
+        // Overlay loading spinner while booking
+        if (isBookingLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
     }
+}
 }
 
 
 @Composable
-fun DatePickerFieldToModal(modifier: Modifier = Modifier, onDateSelected: (Long?) -> Unit)
+fun DatePickerFieldToModal(modifier: Modifier = Modifier, onDateSelected: (LocalDate?) -> Unit)
 {
-    var selectedDate by remember { mutableStateOf<Long?>(System.currentTimeMillis()) }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     var showModal by remember { mutableStateOf(false) }
 
+    val displayFormatter = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.getDefault())
+
     OutlinedTextField(
-        value = selectedDate?.let { convertMillisToDate(it) } ?: "",
+        value = selectedDate?.format(displayFormatter) ?: "",
         onValueChange = { },
         label = { Text("Pick a date") },
-        placeholder = { Text(SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(Date())) },
+        placeholder = { Text(LocalDate.now().format(displayFormatter)) },
         trailingIcon = {
             Icon(Icons.Default.DateRange, contentDescription = "Select date")
         },
@@ -373,9 +403,6 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier, onDateSelected: (Long?
             .fillMaxWidth()
             .pointerInput(selectedDate) {
                 awaitEachGesture {
-                    // Modifier.clickable doesn't work for text fields, so we use Modifier.pointerInput
-                    // in the Initial pass to observe events before the text field consumes them
-                    // in the Main pass.
                     awaitFirstDown(pass = PointerEventPass.Initial)
                     val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
                     if (upEvent != null)
@@ -389,7 +416,7 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier, onDateSelected: (Long?
     if (showModal)
     {
         DatePickerModal(
-            selectedDateMillis = selectedDate,
+            selectedDate = selectedDate,
             onDateSelected = {
                 selectedDate = it
                 onDateSelected(it)
@@ -399,33 +426,36 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier, onDateSelected: (Long?
     }
 }
 
-fun convertMillisToDate(millis: Long): String
-{
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-    return formatter.format(Date(millis))
-}
 
-fun formatDayMonth(millis: Long): String {
-    val formatter = SimpleDateFormat("d. MMM", Locale.getDefault())
-    return formatter.format(Date(millis))
+fun formatDayMonth(date: LocalDate): String {
+    val formatter = java.time.format.DateTimeFormatter.ofPattern("d. MMM", Locale.getDefault())
+    return date.format(formatter)
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
-    selectedDateMillis: Long? = null,
-    onDateSelected: (Long?) -> Unit,
+    selectedDate: LocalDate? = null,
+    onDateSelected: (LocalDate?) -> Unit,
     onDismiss: () -> Unit
 )
 {
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
+    val initialMillis = selectedDate?.atStartOfDay(java.time.ZoneId.systemDefault())
+        ?.toInstant()
+        ?.toEpochMilli()
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
+                val chosenDate = datePickerState.selectedDateMillis?.let { millis ->
+                    java.time.Instant.ofEpochMilli(millis)
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDate()
+                }
+                onDateSelected(chosenDate)
                 onDismiss()
             }) {
                 Text("OK")
@@ -442,3 +472,22 @@ fun DatePickerModal(
 }
 
 data class Timeslot(val time: String, val isAvailable: Boolean = true)
+
+
+private fun parseLocalTime(text: String): java.time.LocalTime? {
+    return try {
+        // Try strict 24h format with leading zero e.g., 09:00
+        java.time.LocalTime.parse(text, java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+    } catch (e1: Exception) {
+        try {
+            // Try single-hour digit e.g., 9:00
+            java.time.LocalTime.parse(text, java.time.format.DateTimeFormatter.ofPattern("H:mm"))
+        } catch (e2: Exception) {
+            null
+        }
+    }
+}
+
+private fun formatTime(time: java.time.LocalTime): String {
+    return time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+}

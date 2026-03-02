@@ -15,8 +15,13 @@ data class TrainerResponseItem(
     val currency: String,
     val address: String,
     val distance: Double,
-    val image: ImageItem,
+    val images: List<TrainerImageItem>,
     val rating: Double?,
     val about: String,
     val features: List<FeatureItem>
+)
+
+// Wrapper to match API structure: trainer -> images -> image -> url
+data class TrainerImageItem(
+    val image: ImageItem?
 )

@@ -31,4 +31,17 @@ class TrainingBookingsRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun getTrainingBookings(): Result<List<com.example.teene.home.data.models.TrainingBookingDto>> {
+        return try {
+            val response = remote.getTrainingBookings()
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: emptyList())
+            } else {
+                Result.failure(Exception("Failed to load training bookings: ${response.code()} ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
