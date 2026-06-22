@@ -1,5 +1,6 @@
 package com.example.teene.domain.models
 
+import com.google.gson.annotations.SerializedName
 
 data class UsersCreateResponse(
     val address: String,
@@ -13,5 +14,6 @@ data class UsersCreateResponse(
     val longitude: Double,
     val measurementSystem: String,
     val phoneNumber: String,
-    val physicalPreparation: String
+    val physicalPreparation: String,
+    @SerializedName("quickblox_id", alternate = ["quickblox_user_id", "qb_id"]) val quickbloxId: Int? = null
 )

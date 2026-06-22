@@ -1,17 +1,36 @@
+import com.example.teene.data.network.AuthorizedApiService
 import com.example.teene.data.network.NoAuthApiService
 import com.example.teene.domain.models.AuthorizeRequest
 import com.example.teene.domain.models.AuthorizeResponse
 import com.example.teene.domain.models.ForgotPasswordRequest
+import com.example.teene.domain.models.RefreshQuickbloxSessionResponse
 import com.example.teene.domain.models.UserRequest
 import com.example.teene.domain.models.UsersCreateResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class UsersRepository(
-    //    private val authorizedApiService: AuthorizedApiService,
+    private val authorizedApiService: AuthorizedApiService,
     private val noAuthApiService: NoAuthApiService
 )
 {
+    fun refreshQuickbloxSession(): Flow<Result<RefreshQuickbloxSessionResponse>> = flow {
+        try
+        {
+            val response = authorizedApiService.refreshQuickbloxSession()
+            if (response.isSuccessful)
+            {
+                emit(Result.success(response.body()!!))
+            }
+            else
+            {
+                emit(Result.failure(Exception("Failed to refresh Quickblox session: ${response.message()}")))
+            }
+        } catch (e: Exception)
+        {
+            emit(Result.failure(e))
+        }
+    }
     fun createUser(userRequest: UserRequest): Flow<Result<UsersCreateResponse>> = flow {
         try
         {

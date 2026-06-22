@@ -267,7 +267,6 @@ fun MySessionCard(
         .joinToString(" ").trim().ifBlank { "Unknown trainer" }
 
     val location = booking.trainer?.address?.let { addr ->
-        // Expecting comma separated components; show Street, City if available
         val parts = addr.split(',').map { it.trim() }.filter { it.isNotEmpty() }
         when {
             parts.size >= 2 -> listOf(parts[0], parts[1]).joinToString(", ")
@@ -479,7 +478,8 @@ private fun com.example.teene.home.data.models.TrainingBookingDto.toNavArg(): Se
         trainerName = trainerName,
         address = address,
         priceText = priceText,
-        startTimeIso = this.startTime
+        startTimeIso = this.startTime,
+        trainerQuickbloxId = this.trainer?.quickbloxId
     )
 }
 

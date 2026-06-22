@@ -105,4 +105,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // QuickBlox SDK (chat / messaging)
+    implementation("com.quickblox:quickblox-android-sdk-messages:4.3.0")
+    implementation("com.quickblox:quickblox-android-sdk-chat:4.3.0")
+    implementation("com.quickblox:quickblox-android-sdk-content:4.3.0")
 }

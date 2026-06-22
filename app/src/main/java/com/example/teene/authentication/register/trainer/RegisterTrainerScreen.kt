@@ -7,8 +7,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.LastBaseline
 import com.example.teene.authentication.AuthenticationNavGraph
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.example.teene.ui.composables.ChipOption
@@ -62,6 +65,9 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.teene.home.presentation.icons.sportIconPainter
+import java.util.Currency
+import java.util.Locale
+import com.ramcosta.composedestinations.generated.destinations.TrainerYourCareerScreenDestination
 
 // UI model for sport suggestions (id and display name only; no image URL)
 data class SportSuggestionUi(val id: Int, val name: String)
@@ -88,16 +94,14 @@ private data class LanguageSuggestionUi(val code: String, val name: String)
 fun RegisterTrainerScreen(
     navigator: DestinationsNavigator? = null
 ) {
-    // Local UI state
-    var aboutText by rememberSaveable { mutableStateOf("") }
-    var priceText by rememberSaveable { mutableStateOf("") }
-
     // Images & actions used by the grid (runtime wiring using Koin VMs)
     val imagesVm = org.koin.androidx.compose.koinViewModel<RegisterTrainerImagesViewModel>()
     val imagesState = imagesVm.images.collectAsStateWithLifecycle().value
 
     val pickMedia = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia(4),
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia(
+            4
+        ),
         onResult = { uris ->
             if (!uris.isNullOrEmpty()) {
                 imagesVm.pick(uris)
@@ -114,7 +118,18 @@ fun RegisterTrainerScreen(
     val onRemoveClick: (Int) -> Unit = { index -> imagesVm.removeAt(index) }
     val onRetryClick: (Int) -> Unit = { index -> imagesVm.retryUpload(index) }
 
-    val registerVm = org.koin.androidx.compose.koinViewModel<RegisterTrainerViewModel>()
+    val activity = androidx.compose.ui.platform.LocalContext.current as androidx.activity.ComponentActivity
+    val registerVm = org.koin.androidx.compose.koinViewModel<RegisterTrainerViewModel>(viewModelStoreOwner = activity)
+
+    // Bind state from ViewModel
+    val aboutText by registerVm.aboutText.collectAsStateWithLifecycle()
+    val priceText by registerVm.priceText.collectAsStateWithLifecycle()
+    val selectedFeatureIds by registerVm.selectedFeatureIds.collectAsStateWithLifecycle()
+    val eduDegree by registerVm.eduDegree.collectAsStateWithLifecycle()
+    val eduCourse by registerVm.eduCourse.collectAsStateWithLifecycle()
+    val eduNone by registerVm.eduNone.collectAsStateWithLifecycle()
+    val selectedIntensities by registerVm.selectedIntensities.collectAsStateWithLifecycle()
+
     val features = registerVm.features.collectAsStateWithLifecycle().value
     val featureItems = features.map { ChipOption(key = it.id, label = it.name) }
 
@@ -122,7 +137,8 @@ fun RegisterTrainerScreen(
     val sportQuery = registerVm.sportQuery.collectAsStateWithLifecycle().value
     val selectedSports = registerVm.selectedSports.collectAsStateWithLifecycle().value
     val suggestionsDetailed = registerVm.suggestionsDetailed.collectAsStateWithLifecycle().value
-    val sportSuggestions: List<SportSuggestionUi> = suggestionsDetailed.map { SportSuggestionUi(id = it.id, name = it.name) }
+    val sportSuggestions: List<SportSuggestionUi> =
+        suggestionsDetailed.map { SportSuggestionUi(id = it.id, name = it.name) }
 
     // Next click behavior
     var isUploading by rememberSaveable { mutableStateOf(false) }
@@ -137,24 +153,19 @@ fun RegisterTrainerScreen(
                 isUploading = false
                 hadUploadErrors = !success
                 if (success) {
-                    navigator?.navigateUp()
+                    navigator?.navigate(TrainerYourCareerScreenDestination)
                 }
             }
         }
     }
 
-    var selectedFeatureIds by rememberSaveable { mutableStateOf(setOf<Int>()) }
-
-    // Education checkboxes
-    var eduDegree by rememberSaveable { mutableStateOf(false) }
-    var eduCourse by rememberSaveable { mutableStateOf(false) }
-    var eduNone by rememberSaveable { mutableStateOf(false) }
-
     // Languages search + selections (via VM; hardcoded list inside VM)
     val languageQuery = registerVm.languagesQuery.collectAsStateWithLifecycle().value
     val languageSuggestionsVm = registerVm.languageSuggestions.collectAsStateWithLifecycle().value
-    val languageSuggestions: List<LanguageSuggestionUi> = languageSuggestionsVm.map { LanguageSuggestionUi(code = it.code, name = it.name) }
-    val selectedLanguageCodes = registerVm.selectedLanguagesCodes.collectAsStateWithLifecycle().value
+    val languageSuggestions: List<LanguageSuggestionUi> =
+        languageSuggestionsVm.map { LanguageSuggestionUi(code = it.code, name = it.name) }
+    val selectedLanguageCodes =
+        registerVm.selectedLanguagesCodes.collectAsStateWithLifecycle().value
     val selectedLanguagesVm = registerVm.selectedLanguages.collectAsStateWithLifecycle().value
 
 
@@ -227,7 +238,10 @@ fun RegisterTrainerScreen(
 
             Spacer(Modifier.height(24.dp))
             // Sports selection (multi-select via search dropdown + chips)
-            RequiredLabel(text = "Sports", showAsterisk = registerVm.selectedSportsIds.collectAsStateWithLifecycle().value.isEmpty())
+            RequiredLabel(
+                text = "Sports",
+                showAsterisk = registerVm.selectedSportsIds.collectAsStateWithLifecycle().value.isEmpty()
+            )
             Spacer(Modifier.height(8.dp))
             SportDropdownSearch(
                 query = sportQuery,
@@ -272,9 +286,9 @@ fun RegisterTrainerScreen(
                     .fillMaxWidth()
                     .height(140.dp),
                 value = aboutText,
-                onValueChange = { aboutText = it },
+                onValueChange = { registerVm.aboutText.value = it },
                 placeholder = { Text("Tell customers about your experience, approach, and what to expect") },
-                label = { RequiredLabel(text = "About you", showAsterisk = aboutText.isBlank(), style = MaterialTheme.typography.labelSmall) },
+                label = { Text("About you") },
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedTextColor = Color(0xFF7A7A7A),
                     unfocusedBorderColor = Color(0xFFF0F0F0),
@@ -287,20 +301,50 @@ fun RegisterTrainerScreen(
             // Price per training
             RequiredLabel(text = "Price per training", showAsterisk = priceText.isBlank())
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = priceText,
-                onValueChange = { priceText = it.filter { ch -> ch.isDigit() || ch == '.' || ch == ',' } },
-                placeholder = { Text("Enter price") },
-                label = { RequiredLabel(text = "Price", showAsterisk = priceText.isBlank(), style = MaterialTheme.typography.labelSmall) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color(0xFF7A7A7A),
-                    unfocusedBorderColor = Color(0xFFF0F0F0),
-                    focusedBorderColor = Color.Black,
-                    focusedLabelColor = Color.Black
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min), // row matches tallest child (the TextField)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .weight(1f), // optional: let it take available width
+                    value = priceText,
+                    onValueChange = {
+                        registerVm.priceText.value = it.filter { ch -> ch.isDigit() || ch == '.' || ch == ',' }
+                    },
+                    placeholder = { Text("Type your price here") },
+                    label = { Text("Price") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedTextColor = Color(0xFF7A7A7A),
+                        unfocusedBorderColor = Color(0xFFF0F0F0),
+                        focusedBorderColor = Color.Black,
+                        focusedLabelColor = Color.Black
+                    )
                 )
-            )
+
+                val currency: Currency = Currency.getInstance(Locale.getDefault())
+                val unitText = "${currency.symbol} / Training" // symbol is usually what you want
+
+                // Make the right side match the TextField height
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(top = 8.dp)
+                         // take the Row’s height (same as TextField now)
+                        .background(Color(0xFFF0F0F0)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(modifier = Modifier.padding(horizontal = 16.dp),
+                        text = unitText,
+                        color = Color.Black,
+                        maxLines = 1
+                    )
+                }
+            }
 
             Spacer(Modifier.height(24.dp))
             // Features chips
@@ -312,36 +356,60 @@ fun RegisterTrainerScreen(
                 MultiSelectChips(
                     items = featureItems,
                     selectedKeys = selectedFeatureIds,
-                    onSelectionChange = { new -> selectedFeatureIds = new },
+                    onSelectionChange = { new -> registerVm.selectedFeatureIds.value = new },
                     maxItemsInEachRow = 3
                 )
             }
 
             Spacer(Modifier.height(24.dp))
+            // Training Intensity
+            RequiredLabel(text = "Training Intensity", showAsterisk = selectedIntensities.isEmpty())
+            Spacer(Modifier.height(8.dp))
+            MultiSelectChips(
+                items = listOf(
+                    ChipOption(key = "Low", label = "Low"),
+                    ChipOption(key = "Moderate", label = "Moderate"),
+                    ChipOption(key = "High", label = "High")
+                ),
+                selectedKeys = selectedIntensities,
+                onSelectionChange = { new -> registerVm.selectedIntensities.value = new },
+                maxItemsInEachRow = 3
+            )
+
+            Spacer(Modifier.height(24.dp))
             // Highest education
-            RequiredLabel(text = "Highest education", showAsterisk = !(eduDegree || eduCourse || eduNone))
+            RequiredLabel(
+                text = "Highest education",
+                showAsterisk = !(eduDegree || eduCourse || eduNone)
+            )
             Spacer(Modifier.height(8.dp))
             EducationCheckboxRow(
                 checked = eduDegree,
                 onCheckedChange = {
-                    eduDegree = it
-                    if (it) { eduCourse = false; eduNone = false }
+                    registerVm.eduDegree.value = it
+                    if (it) {
+                        registerVm.eduCourse.value = false; registerVm.eduNone.value = false
+                    }
                 },
                 label = "Completed a degree in sport or higher"
             )
             EducationCheckboxRow(
                 checked = eduCourse,
                 onCheckedChange = {
-                    eduCourse = it
-                    if (it) { eduDegree = false; eduNone = false }
+                    registerVm.eduCourse.value = it
+                    if (it) {
+                        registerVm.eduDegree.value = false; registerVm.eduNone.value = false
+                    }
                 },
                 label = "Completed a specific course in a sport"
             )
             EducationCheckboxRow(
                 checked = eduNone,
                 onCheckedChange = {
-                    eduNone = it
-                    if (it) { eduDegree = false; eduCourse = false }
+                    registerVm.eduNone.value = it
+                    if (it) {
+                        registerVm.eduDegree.value = false; registerVm.eduCourse.value = false
+                    }
                 },
                 label = "No sporting education"
             )
@@ -361,7 +429,8 @@ fun RegisterTrainerScreen(
             )
             Spacer(Modifier.height(8.dp))
             run {
-                val chipItems = selectedLanguagesVm.map { LanguageSuggestionUi(code = it.code, name = it.name) }
+                val chipItems =
+                    selectedLanguagesVm.map { LanguageSuggestionUi(code = it.code, name = it.name) }
                 if (chipItems.isEmpty()) {
                     Text(text = "No languages selected", color = Color(0xFF7A7A7A))
                 } else {
@@ -430,7 +499,10 @@ private fun ImageUploaderGrid(
             Box(
                 modifier = if (index < totalSlots) {
                     if (hasItem) {
-                        baseModifier.border(BorderStroke(1.dp, Color(0xFF009DC3)), RoundedCornerShape(8.dp))
+                        baseModifier.border(
+                            BorderStroke(1.dp, Color(0xFF009DC3)),
+                            RoundedCornerShape(8.dp)
+                        )
                     } else {
                         baseModifier
                             .clickable { onAddClick() }
@@ -467,6 +539,7 @@ private fun ImageUploaderGrid(
                                     .padding(4.dp)
                             )
                         }
+
                         RegisterTrainerImagesViewModel.ImageUi.Status.Error -> {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
@@ -487,6 +560,7 @@ private fun ImageUploaderGrid(
                                 )
                             }
                         }
+
                         else -> Unit
                     }
 
@@ -524,7 +598,11 @@ private fun ImageUploaderGrid(
                     Slot(currentIndex)
                 } else {
                     // Filler to keep two columns layout when odd count
-                    Spacer(modifier = Modifier.weight(1f).height(120.dp))
+                    Spacer(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(120.dp)
+                    )
                 }
                 currentIndex++
             }
@@ -544,7 +622,7 @@ private fun SportDropdownSearch(
     var expanded by remember { mutableStateOf(false) }
 
     androidx.compose.material3.ExposedDropdownMenuBox(
-        expanded = expanded && suggestions.isNotEmpty() && query.length >= 2,
+        expanded = expanded && suggestions.isNotEmpty(),
         onExpandedChange = { expanded = it }
     ) {
         OutlinedTextField(
@@ -554,7 +632,8 @@ private fun SportDropdownSearch(
             value = query,
             onValueChange = { q ->
                 onQueryChange(q)
-                expanded = true // open while typing; menu content decides visibility via suggestions
+                expanded =
+                    true // open while typing; menu content decides visibility via suggestions
             },
             placeholder = { Text("Search sport...") },
             trailingIcon = {
@@ -613,7 +692,7 @@ private fun LanguageDropdownSearch(
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
-        expanded = expanded && suggestions.isNotEmpty() && query.length >= 2,
+        expanded = expanded && suggestions.isNotEmpty(),
         onExpandedChange = { expanded = it }
     ) {
         OutlinedTextField(
@@ -703,7 +782,10 @@ private fun RegisterTrainerScreenSmallPreview() {
 }
 
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "SportDropdownSearch - Empty")
+@androidx.compose.ui.tooling.preview.Preview(
+    showBackground = true,
+    name = "SportDropdownSearch - Empty"
+)
 @Composable
 private fun SportDropdownSearchPreview_Empty() {
     var query by remember { mutableStateOf("") }
@@ -727,7 +809,10 @@ private fun SportDropdownSearchPreview_Empty() {
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "SportDropdownSearch - With Query")
+@androidx.compose.ui.tooling.preview.Preview(
+    showBackground = true,
+    name = "SportDropdownSearch - With Query"
+)
 @Composable
 private fun SportDropdownSearchPreview_WithQuery() {
     var query by remember { mutableStateOf("Ba") }

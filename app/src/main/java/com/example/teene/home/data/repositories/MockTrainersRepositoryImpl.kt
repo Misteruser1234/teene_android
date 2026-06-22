@@ -2,6 +2,8 @@ package com.example.teene.home.data.repositories
 
 import com.example.teene.home.data.models.FeatureItem
 import com.example.teene.home.data.models.ImageItem
+import com.example.teene.home.data.models.TrainerCreateRequest
+import com.example.teene.home.data.models.TrainerCreateResponse
 import com.example.teene.home.data.models.TrainerResponseItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -65,5 +67,10 @@ class MockTrainersRepositoryImpl : TrainersRepository {
     override fun getAllTrainers(): Flow<Result<List<TrainerResponseItem>>> = flow {
         // For the mock, we only have padel coaches.
         emit(Result.success(padelCoaches()))
+    }
+
+    override fun createTrainer(request: TrainerCreateRequest): Flow<Result<TrainerCreateResponse>> = flow {
+        // Mock success
+        emit(Result.failure(Exception("Mock repository cannot create real trainers on backend. Please switch to TrainersRepositoryImpl in di/modules.kt")))
     }
 }

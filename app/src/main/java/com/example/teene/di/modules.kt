@@ -71,7 +71,7 @@ val landingModule = module {
 
     // Singletons that depend on DataStore singletons
     single { LandingDataStore(get(named("appPrefs"))) }
-    single { UsersRepository(get()) }
+    single { UsersRepository(get(), get()) }
     // Provide the use case
     single { CreateUserUseCase(get()) }
     single { ForgotPasswordUseCase(get()) }
@@ -81,8 +81,8 @@ val landingModule = module {
     single { com.example.teene.data.UserDataStore(get(named("userPrefs"))) }
 
     viewModel { LandingViewModel(get(), get(), get()) }
-    viewModel { RegisterViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get(), get()) }
+    viewModel { RegisterViewModel(get(), get(), get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { ForgotPasswordViewModel(get()) }
 }
@@ -96,6 +96,7 @@ val homeModule = module {
     // Features: repo + use case
     single { com.example.teene.home.data.repositories.FeaturesRepositoryImpl(get()) }
     single { com.example.teene.home.domain.usecases.GetFeaturesUseCase(get()) }
+    single { com.example.teene.home.domain.usecases.CreateTrainerUseCase(get()) }
 
     // Bookings: local + remote data sources, repository, use case
     single { com.example.teene.home.data.datasources.BookingsLocalDataSource(get()) }
@@ -131,13 +132,19 @@ val homeModule = module {
 
     // ViewModels
     viewModel { RegisterTrainerImagesViewModel(get(), get()) }
-    viewModel { com.example.teene.authentication.register.trainer.RegisterTrainerViewModel(get(), get<com.example.teene.home.domain.usecases.GetFeaturesUseCase>()) }
+    viewModel { com.example.teene.authentication.register.trainer.RegisterTrainerViewModel(get(), get(), get(), get()) }
 }
 
 val eventsModule = module {
     single { EventsRepositoryImpl(get()) }
     single { GetEventsUseCase(get()) }
     viewModel { EventsViewModel(get()) }
+}
+
+val inboxModule = module {
+    single { com.example.teene.inbox.data.QuickbloxManager(androidContext(), get(), get()) }
+    single { com.example.teene.inbox.data.InboxRepository() }
+    viewModel { com.example.teene.inbox.presentation.InboxViewModel(get(), get()) }
 }
 
 // Define a NetworkModule using Koin

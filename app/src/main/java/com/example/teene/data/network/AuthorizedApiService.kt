@@ -4,6 +4,8 @@ import com.example.teene.events.data.models.EventDto
 import com.example.teene.home.data.models.FeatureItem
 import com.example.teene.home.data.models.SportsResponseItem
 import com.example.teene.home.data.models.TrainerAvailabilityResponse
+import com.example.teene.home.data.models.TrainerCreateRequest
+import com.example.teene.home.data.models.TrainerCreateResponse
 import com.example.teene.home.data.models.TrainerResponseItem
 import com.example.teene.home.data.models.TrainingBookingRequest
 import com.example.teene.home.data.models.TrainingBookingResponse
@@ -68,6 +70,11 @@ interface AuthorizedApiService
     suspend fun createTrainingBooking(
         @Body request: TrainingBookingRequest
     ): Response<TrainingBookingResponse>
+    
+    @POST("/trainers")
+    suspend fun createTrainer(
+        @Body request: TrainerCreateRequest
+    ): Response<TrainerCreateResponse>
 
     // Images API
     @Multipart
@@ -82,4 +89,7 @@ interface AuthorizedApiService
     suspend fun deleteImage(
         @Path("id") id: Int
     ): Response<Unit>
+
+    @POST("/users/refresh_quickblox_session")
+    suspend fun refreshQuickbloxSession(): Response<com.example.teene.domain.models.RefreshQuickbloxSessionResponse>
 }

@@ -2,6 +2,8 @@ package com.example.teene.home.data.repositories
 
 import android.util.Log
 import com.example.teene.data.network.AuthorizedApiService
+import com.example.teene.home.data.models.TrainerCreateRequest
+import com.example.teene.home.data.models.TrainerCreateResponse
 import com.example.teene.home.data.models.TrainerResponseItem
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -53,6 +55,20 @@ class TrainersRepositoryImpl(
             emit(Result.success(combined))
         } catch (e: Exception) {
             Log.e("TrainersRepositoryImpl", "Failed to fetch all trainers", e)
+            emit(Result.failure(e))
+        }
+    }
+
+    override fun createTrainer(request: TrainerCreateRequest): Flow<Result<TrainerCreateResponse>> = flow {
+        try {
+            val response = apiService.createTrainer(request)
+            if (response.isSuccessful) {
+                emit(Result.success(response.body()!!))
+            } else {
+                emit(Result.failure(Exception("Failed to create trainer: ${response.message()}")))
+            }
+        } catch (e: Exception) {
+            Log.e("TrainersRepositoryImpl", "Failed to create trainer", e)
             emit(Result.failure(e))
         }
     }

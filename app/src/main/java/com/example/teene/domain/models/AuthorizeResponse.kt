@@ -15,5 +15,6 @@ data class AuthorizeResponse(
     val longitude: Double,
     val measurementSystem: String,
     val phoneNumber: String? = null,
-    val physicalPreparation: String? = null
+    val physicalPreparation: String? = null,
+    @com.google.gson.annotations.SerializedName("quickblox_id", alternate = ["quickblox_user_id", "qb_id"]) val quickbloxId: Int? = null
 )

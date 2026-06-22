@@ -18,7 +18,8 @@ data class TrainerResponseItem(
     val images: List<TrainerImageItem>,
     val rating: Double?,
     val about: String,
-    val features: List<FeatureItem>
+    val features: List<FeatureItem>,
+    @SerializedName("quickblox_id", alternate = ["quickblox_user_id", "qb_id"]) val quickbloxId: Int? = null
 )
 
 // Wrapper to match API structure: trainer -> images -> image -> url

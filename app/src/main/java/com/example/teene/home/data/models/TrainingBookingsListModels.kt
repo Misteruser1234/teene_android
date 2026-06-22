@@ -15,7 +15,15 @@ data class TrainingBookingDto(
     val approved: Boolean?,
     @SerializedName("cancelled_at") val cancelledAt: String?,
     @SerializedName("created_at") val createdAt: String?,
-    val trainer: TrainerSummaryDto?
+    val trainer: TrainerSummaryDto?,
+    val user: UserSummaryDto? = null
+)
+
+data class UserSummaryDto(
+    val id: Int,
+    @SerializedName("first_name") val firstName: String?,
+    @SerializedName("last_name") val lastName: String?,
+    @SerializedName("quickblox_id", alternate = ["quickblox_user_id", "qb_id"]) val quickbloxId: Int? = null
 )
 
 data class TrainerSummaryDto(
@@ -31,7 +39,8 @@ data class TrainerSummaryDto(
     @SerializedName("review_count") val reviewCount: Int?,
     val about: String?,
     val images: List<TrainerImageDto>?,
-    val sport: SportDto?
+    val sport: SportDto?,
+    @SerializedName("quickblox_id", alternate = ["quickblox_user_id", "qb_id"]) val quickbloxId: Int? = null
 )
 
 data class SportDto(

@@ -38,7 +38,7 @@ fun BottomBar(
     NavigationBar(containerColor = Color.White)  {
         BottomBarDestination.entries.forEach { destination ->
             NavigationBarItem(
-                selected = currentDestination == destination.direction,
+                selected = currentDestination.route == destination.direction.route,
                 onClick = {
                     navController.toDestinationsNavigator().navigate(destination.direction) {
                         launchSingleTop = true

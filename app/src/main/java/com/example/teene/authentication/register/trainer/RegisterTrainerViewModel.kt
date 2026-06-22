@@ -3,22 +3,35 @@ package com.example.teene.authentication.register.trainer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.teene.home.domain.usecases.GetSportsUseCase
+import com.example.teene.home.domain.usecases.GetFeaturesUseCase
+import com.example.teene.home.domain.usecases.CreateTrainerUseCase
+import com.example.teene.data.UserDataStore
+import com.example.teene.home.data.models.CareerHistoryRequest
+import com.example.teene.home.data.models.TrainerCreateRequest
+import com.example.teene.home.data.models.TrainerCreateResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 /**
  * ViewModel for RegisterTrainerScreen to fetch sports via the domain use case
  * and expose a suggestions stream suitable for a searchable dropdown.
  */
+@OptIn(FlowPreview::class)
 class RegisterTrainerViewModel(
     private val getSportsUseCase: GetSportsUseCase,
-    private val getFeaturesUseCase: com.example.teene.home.domain.usecases.GetFeaturesUseCase
+    private val getFeaturesUseCase: GetFeaturesUseCase,
+    private val createTrainerUseCase: CreateTrainerUseCase,
+    private val userDataStore: UserDataStore
 ) : ViewModel() {
 
     data class RegisterSportSuggestion(
@@ -30,6 +43,36 @@ class RegisterTrainerViewModel(
         val code: String,
         val name: String
     )
+
+    data class CareerHistoryItem(
+        val companyName: String,
+        val from: java.time.LocalDate,
+        val to: java.time.LocalDate
+    )
+
+    // -------------------- Registration State --------------------
+    val firstName = MutableStateFlow("")
+    val lastName = MutableStateFlow("")
+    val aboutText = MutableStateFlow("")
+    val priceText = MutableStateFlow("")
+    val latitude = MutableStateFlow<Double?>(null)
+    val longitude = MutableStateFlow<Double?>(null)
+    val currency = MutableStateFlow("RSD")
+    
+    val selectedFeatureIds = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedIntensities = MutableStateFlow<Set<String>>(emptySet())
+    
+    val eduDegree = MutableStateFlow(false)
+    val eduCourse = MutableStateFlow(false)
+    val eduNone = MutableStateFlow(false)
+
+    val achievements = MutableStateFlow<List<String>>(emptyList())
+    val careerHistory = MutableStateFlow<List<CareerHistoryItem>>(emptyList())
+
+    private val _creationResult = MutableStateFlow<Result<TrainerCreateResponse>?>(null)
+    val creationResult: StateFlow<Result<TrainerCreateResponse>?> = _creationResult
+
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     // Expose Features list to the screen (used for chips)
     val features: StateFlow<List<com.example.teene.home.data.models.FeatureItem>> =
@@ -83,10 +126,11 @@ class RegisterTrainerViewModel(
         selectedSportIds
     ) { q, list, selectedIds ->
         val trimmed = q.trim()
-        if (trimmed.length < 2) {
-            emptyList()
+        val pool = list.filter { it.id !in selectedIds }
+        if (trimmed.isEmpty()) {
+            pool.take(10).toList()
         } else {
-            list.asSequence()
+            pool.asSequence()
                 .filter { it.id !in selectedIds }
                 .filter { it.name.contains(trimmed, ignoreCase = true) }
                 .distinctBy { it.id }
@@ -141,9 +185,8 @@ class RegisterTrainerViewModel(
     private val selectedLanguageCodes = MutableStateFlow<Set<String>>(emptySet())
     val selectedLanguagesCodes: StateFlow<Set<String>> = selectedLanguageCodes
 
-    val selectedLanguages: StateFlow<List<RegisterLanguage>> = combine(selectedLanguageCodes) { codes ->
-        val set = codes.firstOrNull() ?: emptySet()
-        hardcodedLanguages.filter { it.code in set }
+    val selectedLanguages: StateFlow<List<RegisterLanguage>> = selectedLanguageCodes.map { codes ->
+        hardcodedLanguages.filter { it.code in codes }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -155,11 +198,14 @@ class RegisterTrainerViewModel(
         selectedLanguageCodes
     ) { q, selected ->
         val trimmed = q.trim()
-        if (trimmed.length < 2) emptyList() else hardcodedLanguages.asSequence()
-            .filter { it.code !in selected }
-            .filter { it.name.contains(trimmed, ignoreCase = true) }
-            .take(10)
-            .toList()
+        val pool = hardcodedLanguages.filter { it.code !in selected }
+        if (trimmed.isEmpty()) {
+            pool.take(10).toList()
+        } else {
+            pool.filter { it.name.contains(trimmed, ignoreCase = true) }
+                .take(10)
+                .toList()
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -178,5 +224,46 @@ class RegisterTrainerViewModel(
 
     fun setSelectedLanguages(codes: Set<String>) {
         selectedLanguageCodes.value = codes
+    }
+
+    fun createTrainer() {
+        viewModelScope.launch {
+            val userId = userDataStore.userIdFlow.first() ?: return@launch
+
+            val education = mutableListOf<String>()
+            if (eduDegree.value) education.add("Degree")
+            if (eduCourse.value) education.add("Course")
+            if (eduNone.value) education.add("None")
+
+            val request = TrainerCreateRequest(
+                userId = userId,
+                firstName = firstName.value.takeIf { it.isNotBlank() },
+                lastName = lastName.value.takeIf { it.isNotBlank() },
+                sportId = selectedSportIds.value.firstOrNull(),
+                about = aboutText.value,
+                latitude = latitude.value,
+                longitude = longitude.value,
+                rate = priceText.value.toIntOrNull(),
+                currency = currency.value,
+                intensities = selectedIntensities.value.toList(),
+                highestEducation = education,
+                languages = selectedLanguageCodes.value.map { code ->
+                    hardcodedLanguages.find { it.code == code }?.name ?: code
+                },
+                achievements = achievements.value,
+                careerHistory = careerHistory.value.map {
+                    CareerHistoryRequest(
+                        companyName = it.companyName,
+                        from = it.from.format(dateFormatter),
+                        to = it.to.format(dateFormatter)
+                    )
+                },
+                featureIds = selectedFeatureIds.value.toList()
+            )
+
+            createTrainerUseCase.execute(request).collect { result ->
+                _creationResult.value = result
+            }
+        }
     }
 }

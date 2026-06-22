@@ -10,5 +10,6 @@ data class SessionSummaryNavArg(
     val trainerName: String?,
     val address: String?,
     val priceText: String?,
-    val startTimeIso: String?
+    val startTimeIso: String?,
+    val trainerQuickbloxId: Int? = null
 ) : Serializable

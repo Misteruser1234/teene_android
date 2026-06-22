@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.example.teene.ui.animations.AuthorizationNavigationAnimations
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.InboxScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Destination<RootGraph>(style = AuthorizationNavigationAnimations::class)
@@ -49,6 +54,30 @@ fun SessionDetailsScreen(
         args.startTimeIso?.let {
             Spacer(Modifier.height(12.dp))
             Text(text = "Starts at: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+
+        Spacer(Modifier.height(24.dp))
+        // Chat with trainer — navigates to the Inbox screen. If we have the trainer's
+        // QuickBlox ID, the Inbox will start (or open) a private dialog with them.
+        Button(
+            onClick = {
+                navigator.navigate(
+                    InboxScreenDestination(trainerQuickbloxId = args.trainerQuickbloxId)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = args.trainerQuickbloxId != null
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Email,
+                contentDescription = null
+            )
+            Spacer(Modifier.height(0.dp))
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = if (args.trainerQuickbloxId != null) "Chat with trainer"
+                else "Chat unavailable"
+            )
         }
     }
 }

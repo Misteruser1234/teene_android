@@ -16,6 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://github.com/QuickBlox/quickblox-android-sdk-releases/raw/master/") }
     }
 }
 
