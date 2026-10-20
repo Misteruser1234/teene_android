@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:564063800923:android:4b515a52c20dc589e9b97e",
+        "mobilesdk_app_id": "1:564063800923:android:2eb05cdbb8bf0ba7e9b97e",
         "android_client_info": {
-          "package_name": "com.example.teene"
+          "package_name": "com.example.tenee"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "564063800923-3a9cdq4gq5kjlkv0nr225r5nck091bpp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCv5lu8QDQC3vbp3BCCxgfEg-_xn34EMbw"
@@ -20,7 +25,20 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564063800923-3a9cdq4gq5kjlkv0nr225r5nck091bpp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "564063800923-567dak1j198dqc9l63gqj7tb1mkrblg2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.TENEE",
+                "app_store_id": "6782419348"
+              }
+            }
+          ]
         }
       }
     }

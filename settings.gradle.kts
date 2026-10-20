@@ -16,9 +16,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://github.com/QuickBlox/android-ui-kit-releases/raw/master/") }
+        maven { url = uri("https://github.com/QuickBlox/quickblox-android-sdk-releases/raw/master/") }
+        maven { url = uri("https://github.com/QuickBlox/android-ai-releases/raw/main/") }
     }
 }
 
-rootProject.name = "Teene"
+rootProject.name = "Tenee"
 include(":app")
  

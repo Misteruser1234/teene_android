@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.teene"
+    namespace = "com.example.tenee"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.teene"
+        applicationId = "com.example.tenee"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -32,15 +32,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         debug {
-            firebaseAppDistribution {
-                artifactType = "APK"
-                testers = "pedjavramovic@gmail.com, lazarristic95@gmail.com"
-                appId = "1:564063800923:android:4b515a52c20dc589e9b97e"
-
-            }
         }
     }
     compileOptions {
@@ -90,6 +85,10 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.bottom.sheet)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -97,6 +96,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3.android)
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -104,4 +105,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // QuickBlox SDK (chat / messaging)
+    implementation("com.quickblox:android-ui-kit:0.10.1")
+    implementation("com.quickblox:quickblox-android-sdk-messages:4.3.0")
+    implementation("com.quickblox:quickblox-android-sdk-chat:4.3.0")
+    implementation("com.quickblox:quickblox-android-sdk-content:4.3.0")
 }

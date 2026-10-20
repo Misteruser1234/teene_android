@@ -1,0 +1,32 @@
+package com.example.tenee.home.domain.usecases
+
+/**
+ * Created by 3100lari on 2025/05/29
+ */
+
+import com.example.tenee.home.data.models.SportsResponseItem
+import com.example.tenee.home.data.repositories.SportsRepositoryImpl
+import kotlinx.coroutines.flow.Flow
+
+
+class GetSportsUseCase(private val sportsRepository: SportsRepositoryImpl)
+{
+    fun execute(): Flow<Result<List<SportsResponseItem>>>
+    {
+        return sportsRepository.getSports()  // Returns Flow from the repository
+    }
+
+    fun execute(
+        radius: Int? = null,
+        featureIds: List<Int>? = null,
+        intensities: List<String>? = null,
+        name: String? = null
+    ): Flow<Result<List<SportsResponseItem>>> {
+        return sportsRepository.getSports(
+            radius = radius,
+            featureIds = featureIds,
+            intensities = intensities,
+            name = name
+        )
+    }
+}
