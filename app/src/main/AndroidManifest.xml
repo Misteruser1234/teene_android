@@ -3,15 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".TeeneApplication"
+        android:name=".TeneeApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/logo"
+        android:icon="@drawable/tenee_logo_new"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/logo"
+        android:roundIcon="@drawable/tenee_logo_new"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Teene"
+        android:theme="@style/Theme.Tenee"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
@@ -19,11 +19,18 @@
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Teene">
+            android:theme="@style/Theme.Tenee">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter android:label="Social Auth Callback">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tenee" android:host="auth" android:path="/callback" />
             </intent-filter>
         </activity>
         <meta-data
